@@ -1,0 +1,79 @@
+{% extends "admin/base_dashboard.html" %}
+
+{% block section %}
+
+<section class="container mt-5 align-content-center" id="subject-list">
+  <div class="row row-cols-2 g-3">
+
+    <div class="col-sm-6">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title text-center">Title 1</h5>
+          <table class="table">
+            <thead>
+              <tr class="text-center">
+                <th scope="col">Chapter Name</th>
+                <th scope="col">No.of Questions</th>
+                <th scope="col">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="text-center">
+                <td>1</td>
+                <td>Mark</td>
+                <td>Edit / Delete</td>
+              </tr>
+              <tr class="text-center">
+                <td>2</td>
+                <td>Jacob</td>
+                <td>Edit / Delete</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="d-flex justify-content-end">
+            <a class="btn btn-outline-primary btn-sm" href="#" role="button">+ Chapter</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-6">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title text-center">Title 2</h5>
+          <table class="table">
+            <thead>
+              <tr class="text-center">
+                <th scope="col">Chapter Name</th>
+                <th scope="col">No.of Questions</th>
+                <th scope="col">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="text-center">
+                <td>1</td>
+                <td>Mark</td>
+                <td>Edit / Delete</td>
+              </tr>
+              <tr class="text-center">
+                <td>2</td>
+                <td>Jacob</td>
+                <td>Edit / Delete</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="d-flex justify-content-end">
+            <a class="btn btn-outline-primary btn-sm" href="#" role="button">+ Chapter</a>
+          </div>
+        </div>
+      </div>
+    </div>
+</section>
+
+<section class="container mt-4" id="new-subject">
+  <div class="d-flex justify-content-center">
+    <a class="btn btn-outline-warning btn-lg" href="#" role="button">+ Subject</a>
+  </div>
+</section>
+
+{% endblock %}
