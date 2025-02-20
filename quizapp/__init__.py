@@ -14,3 +14,5 @@ bcrypt = Bcrypt(app)
 
 db.init_app(app)
 app.app_context().push()
+
+from quizapp import routes

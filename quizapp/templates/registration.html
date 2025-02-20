@@ -1,0 +1,48 @@
+{% extends "base_main.html" %}
+
+{% block form %}
+
+<form class="container card mt-5" method="POST">
+    <div class="card-body mt-2" style="color: #2273cf;">
+        <div class="card-title text-center mb-3">
+            <h5 style="color: orange;">Registration</h5>
+        </div>
+        <div class="row mb-3">
+            <label for="username" class="col-sm-3 col-form-label text-end">Username (Email)</label>
+            <div class="col-sm-8">
+                <input type="email" class="form-control" id="username" name="username">
+            </div>
+        </div>
+        <div class="row mb-3">
+            <label for="password" class="col-sm-3 col-form-label text-end">Password</label>
+            <div class="col-sm-8">
+                <input type="password" class="form-control" id="password" name="password">
+            </div>
+        </div>
+        <div class="row mb-3">
+            <label for="fullname" class="col-sm-3 col-form-label text-end">Full Name</label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" id="fullname" name="fullname">
+            </div>
+        </div>
+        <div class="row mb-3">
+            <label for="qualification" class="col-sm-3 col-form-label text-end">Qualification</label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" id="qualification" name="qualification">
+            </div>
+        </div>
+        <div class="row mb-3">
+            <label for="dateofbirth" class="col-sm-3 col-form-label text-end">Date of Birth</label>
+            <div class="col-sm-8">
+                <input type="date" class="form-control" id="dateofbirth" name="dateofbirth">
+            </div>
+        </div>
+        <div class="text-center mt-4">
+            <button type="submit" class="btn btn-primary me-3">Submit</button>
+            <a class="form-text" href="{{ url_for('login') }}" style="text-decoration: none; color: #D93535;">Existing
+                User ?</a>
+        </div>
+    </div>
+</form>
+
+{% endblock %}
