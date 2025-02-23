@@ -1,0 +1,63 @@
+{% extends "admin/base_dashboard.html" %}
+{% block section %}
+
+<div class="container card mt-5" style="max-width: 70%;">
+    <form id="add-new" method="POST">
+        <div class="card-body mt-2" style="color: #2273cf;">
+            <div class="card-title text-center mb-3">
+                <h5 style="color: orange;">Subject Details</h5>
+            </div>
+            <div class="row mb-3">
+                <label for="sname" class="col-sm-3 col-form-label text-end">Subject Name</label>
+                <div class="col-sm-8">
+                    <input class="form-control" id="sname" name="sname" value="{{ subject.sname }}" disabled>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <label for="description" class="col-sm-3 col-form-label text-end">Description</label>
+                <div class="col-sm-8">
+                    <input class="form-control" id="description" name="description" value="{{ subject.description }}"
+                        disabled>
+                </div>
+            </div>
+            <div class="row text-center mt-5" style="color: red;">
+                <h6>Chapters from {{ subject.sname }}</h6>
+            </div>
+            <table class="table text-center mt-4">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Chapter ID</th>
+                        <th>Chapter Name</th>
+                        <th>No. of Quizzes</th>
+                        <th>No. of Questions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for chapter in subject.chapters%}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ chapter.cid }}</td>
+                        <td><a href="{{ url_for('view_chapter', cid = chapter.cid) }}" class="text-decoration-none">
+                                {{ chapter.cname }}
+                            </a>
+                        </td>
+                        <td>{{ chapter.quizzes | length }}</td>
+                        <td>{{ chapter.quizzes | map(attribute="question") | map("length") | sum }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </form>
+    <div class="d-flex justify-content-around mt-2 mb-3">
+        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-success me-3">OK</a>
+        <a href="{{ url_for('edit_subject', sid = subject.sid) }}" class="btn btn-warning">Edit</a>
+        <form action="{{ url_for('delete_subject', sid = subject.sid)}}" class="d-inline" method="POST">
+            <button type="submit" class="btn btn-danger"
+                onclick="return confirm('Are you sure, to delete this Subject?')">Delete</button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

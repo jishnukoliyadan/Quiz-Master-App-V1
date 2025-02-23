@@ -1,0 +1,86 @@
+{% extends "admin/base_dashboard.html" %}
+{% block section %}
+
+<div class="container card mt-5" style="max-width: 70%;">
+<form id="add-new" method="POST">
+    <div class="card-body mt-2" style="color: #2273cf;">
+        <div class="card-title text-center mb-3">
+            <h5 style="color: orange;">Question Details</h5>
+        </div>
+        <div class="row mb-3">
+            <label for="name" class="col-sm-3 col-form-label text-end">Subject Name</label>
+            <div class="col-sm-8">
+                <input class="form-control" id="cname" name="cname" value="{{ question.quiz.chapter.subject.sname }}"
+                    disabled>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <label for="name" class="col-sm-3 col-form-label text-end">Chapter Name</label>
+            <div class="col-sm-8">
+                <input class="form-control" id="cname" name="cname" value="{{ question.quiz.chapter.cname }}" disabled>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <label for="name" class="col-sm-3 col-form-label text-end">Quiz Name</label>
+            <div class="col-sm-8">
+                <input class="form-control" id="cname" name="cname" value="{{ question.quiz.qname }}" disabled>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <label for="q_statement" class="col-sm-3 col-form-label text-end">Question Statement</label>
+            <div class="col-sm-8">
+                <textarea class="form-control" name="q_statement" rows="3"
+                    disabled>{{ question.question_statement }}</textarea>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <label for="option_1" class="col-sm-3 col-form-label text-end">Option 1</label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" id="option_1" name="option_1" value="{{ question.option_a }}"
+                    disabled>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <label for="option_2" class="col-sm-3 col-form-label text-end">Option 2</label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" id="option_2" name="option_2" value="{{ question.option_b }}"
+                    disabled>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <label for="option_3" class="col-sm-3 col-form-label text-end">Option 3</label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" id="option_3" name="option_3" value="{{ question.option_c }}"
+                    disabled>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <label for="option_4" class="col-sm-3 col-form-label text-end">Option 4</label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" id="option_4" name="option_4" value="{{ question.option_d }}"
+                    disabled>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <label for="previousCorrect" class="col-sm-3 col-form-label text-end">Correct Option</label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" id="previousCorrect" name="previousCorrect"
+                    value="Option {{ question.correct_option }}" disabled>
+            </div>
+        </div>
+        
+    </div>
+</form>
+
+<div class="d-flex justify-content-around mt-2 mb-3">
+    <a href="{{ url_for('manage_quizzes') }}" class="btn btn-success me-3">OK</a>
+    <a href="{{ url_for('edit_question', qid = question.qid)}}" class="btn btn-warning">Edit</a>
+    <form action="{{ url_for('delete_question', qid = question.qid)}}" class="d-inline" method="POST">
+        <button type="submit" class="btn btn-danger"
+            onclick="return confirm('Are you sure, to delete this Question?')">Delete</button>
+    </form>
+</div>
+
+</div>
+{% endblock %}
