@@ -3,43 +3,44 @@
 
 <section class="container mt-5 align-content-center" id="subject-list">
   <div class="row row-cols-2 g-3">
-    {% for subject in subjects %}
+    {% for quiz in quizzes %}
     <div class="col-sm-6">
       <div class="card">
         <div class="card-body">
-          <a href="{{ url_for('view_subject', sid = subject.sid) }}" class="text-decoration-none">
+          <h5 class="card-title text-center"></h5>
+          <a href="{{ url_for('view_quiz', qid = quiz.quizid)}}" class="text-decoration-none">
             <h5 class="card-title text-center">
-              {{ subject.sname }}
+              {{ quiz.qname }}
             </h5>
           </a>
           <table class="table">
             <thead>
               <tr class="text-center">
-                <th scope="col">Chapter Name</th>
-                <th scope="col">No.of Questions</th>
+                <th scope="col">No.</th>
+                <th scope="col">Question Title</th>
                 <th scope="col">Action</th>
               </tr>
             </thead>
             <tbody>
-              {% for chapter in subject.chapters %}
+              {% for question in quiz.question %}
               <tr class="text-center">
-                <td>{{ chapter.cname }}</td>
-                <td>{{ chapter.quizzes | map(attribute="question") | map("length") | sum }}</td>
+                <td>{{ loop.index }}</td>
+                <td>{{ question.question_statement | truncate(40) }}</td>
                 <td>
-                  <a href="{{ url_for('view_chapter', cid = chapter.cid) }}"
+                  <a href="{{ url_for('view_question', qid = question.qid)}}"
                     class="btn btn-outline-primary btn-sm">View</a>
-                  <a href="{{ url_for('edit_chapter', cid = chapter.cid) }}"
+                  <a href="{{ url_for('edit_question', qid = question.qid)}}"
                     class="btn btn-outline-warning btn-sm">Edit</a>
                 </td>
               </tr>
               {% endfor %}
             </tbody>
           </table>
-          <div class="d-flex justify-content-end">
-            <a class="btn btn-outline-primary btn-sm" href="{{ url_for('add_chapter', sid = subject.sid) }}"
-              role="button">+ Chapter</a>
+          <div class="d-flex justify-content-between">
+            <p style="color: #2273cf;">{{ quiz.chapter.subject.sname }} | {{ quiz.chapter.cname }}</p>
+            <a class="btn btn-outline-success btn-sm" href="{{ url_for('add_question', qid = quiz.quizid)}}"
+              role="button">+ Question</a>
           </div>
-
         </div>
       </div>
     </div>
@@ -47,8 +48,9 @@
 </section>
 <section class="container mt-4" id="new-subject">
   <div class="d-flex justify-content-center">
-    <a class="btn btn-outline-warning btn-lg" href="{{ url_for('add_subject') }}" role="button">+ Subject</a>
+    <a class="btn btn-outline-success btn-lg" href="{{ url_for('add_quiz') }}" role="button">+ New Quiz</a>
   </div>
+  <br>
 </section>
 
 {% endblock %}

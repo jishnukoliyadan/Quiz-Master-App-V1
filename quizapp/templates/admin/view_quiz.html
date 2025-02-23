@@ -1,0 +1,86 @@
+{% extends "admin/base_dashboard.html" %}
+{% block section %}
+
+<div class="container card mt-5" style="max-width: 70%;">
+    <form id="add-new" method="POST">
+        <div class="card-body mt-2" style="color: #2273cf;">
+            <div class="card-title text-center mb-3">
+                <h5 style="color: orange;">Quiz Details</h5>
+            </div>
+            <div class="row mb-3">
+                <label for="name" class="col-sm-3 col-form-label text-end">Subject Name</label>
+                <div class="col-sm-8">
+                    <input class="form-control" id="sname" name="sname" value="{{ quiz.chapter.subject.sname }}"
+                        disabled>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <label for="name" class="col-sm-3 col-form-label text-end">Chapter Name</label>
+                <div class="col-sm-8">
+                    <input class="form-control" id="cname" name="cname" value="{{ quiz.chapter.cname }}" disabled>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <label for="name" class="col-sm-3 col-form-label text-end">Quiz Name</label>
+                <div class="col-sm-8">
+                    <input class="form-control" id="qname" name="qname" value="{{ quiz.qname }}" disabled>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <label for="tduration" class="col-sm-3 col-form-label text-end">Time Duration</label>
+                <div class="col-sm-8">
+                    <input class="form-control" id="timeduration" name="tduration" value="{{ quiz.timeduration }}s"
+                        disabled>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <label for="qdate" class="col-sm-3 col-form-label text-end">Date of Quiz</label>
+                <div class="col-sm-8">
+                    <input class="form-control" id="qdate" name="qdate" value="{{ quiz.dateofquiz.strftime('%Y-%m-%d') }}"
+                        disabled>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <label for="remarks" class="col-sm-3 col-form-label text-end">Remarks</label>
+                <div class="col-sm-8">
+                    <input class="form-control" id="remarks" name="remarks" value="{{ quiz.remarks }}" disabled>
+                </div>
+            </div>
+            <div class="row text-center mt-4" style="color: red;">
+                <h6>Questions from {{ quiz.qname }}</h6>
+            </div>
+            <table class="table text-center mt-4">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Question ID</th>
+                        <th>Question Statement</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for question in quiz.question%}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ question.qid }}</td>
+                        <td><a href="{{ url_for('view_question', qid = question.qid)}}" class="text-decoration-none">
+                                {{ question.question_statement }}
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </form>
+    <div class="d-flex justify-content-around mt-2 mb-3">
+        <a href="{{ url_for('manage_quizzes') }}" class="btn btn-success me-3">OK</a>
+        <a href="{{ url_for('edit_quiz', qid = quiz.quizid)}}" class="btn btn-warning">Edit</a>
+        <form action="{{ url_for('delete_quiz', qid = quiz.quizid) }}" method="POST" class="d-inline">
+            <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure, to delete this Quiz?')">
+                Delete
+            </button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

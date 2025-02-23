@@ -1,0 +1,85 @@
+{% extends "admin/base_dashboard.html" %}
+{% block section %}
+
+<form class="container card mt-5" id="add-new" style="max-width: 70%;" method="POST">
+    <div class="card-body mt-2" style="color: #2273cf;">
+        <div class="card-title text-center mb-3">
+            <h5 style="color: orange;">Edit Question</h5>
+        </div>
+        <div class="row mb-3">
+            <label for="name" class="col-sm-3 col-form-label text-end">Chapter Name</label>
+            <div class="col-sm-8">
+                <input class="form-control" id="cname" name="cname" value="{{ question.quiz.chapter.cname }}" disabled>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <label for="q_statement" class="col-sm-3 col-form-label text-end">Question Statement</label>
+            <div class="col-sm-8">
+                <textarea class="form-control" name="q_statement" rows="3">{{ question.question_statement }}</textarea>
+            </div>
+        </div>
+
+        <div class="card-title text-center mb-4 mt-4">
+            <h6 style="color: orange;">Single Option Correct</h6>
+        </div>
+
+        <div class="row mb-3">
+            <label for="option_1" class="col-sm-3 col-form-label text-end">Option 1</label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" id="option_1" name="option_1" value="{{ question.option_a }}">
+            </div>
+        </div>
+        <div class="row mb-3">
+            <label for="option_2" class="col-sm-3 col-form-label text-end">Option 2</label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" id="option_2" name="option_2" value="{{ question.option_b }}">
+            </div>
+        </div>
+        <div class="row mb-3">
+            <label for="option_3" class="col-sm-3 col-form-label text-end">Option 3</label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" id="option_3" name="option_3" value="{{ question.option_c }}">
+            </div>
+        </div>
+        <div class="row mb-3">
+            <label for="option_4" class="col-sm-3 col-form-label text-end">Option 4</label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" id="option_4" name="option_4" value="{{ question.option_d }}">
+            </div>
+        </div>
+        <div class="row mb-3">
+            <label for="previousCorrect" class="col-sm-3 col-form-label text-end">Current Correct Option</label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" id="previousCorrect" name="previousCorrect" value="Option {{ question.correct_option }}" disabled>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <label for="correctOption" class="col-sm-3 col-form-label text-end">Choose Correct Option</label>
+            <div class="col-sm-8">
+                <select class="form-select" id="correctOption" name="correctOption" required>
+                    <option disabled selected value="">Select Correct Option</option>
+                    <option value="1">Option 1</option>
+                    <option value="2">Option 2</option>
+                    <option value="3">Option 3</option>
+                    <option value="4">Option 4</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="d-flex justify-content-around mt-4">
+            <button type="submit" class="btn btn-success me-3">Save</button>
+            <a href="{{ url_for('view_question', qid = question.qid)}}" class="btn btn-danger me-3">Cancel</a>
+        </div>
+    </div>
+</form>
+
+<script>
+    document.getElementById("add-new").addEventListener('submit', function(validate){
+        let correctOption = document.getElementById("correctOption").value;
+        if (correctOption == ""){
+            validate.preventDefault();
+        }
+    });
+</script>
+
+{% endblock %}
