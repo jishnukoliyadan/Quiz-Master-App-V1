@@ -55,7 +55,7 @@ class Quiz(db.Model):
     scores = db.relationship('Scores', backref = 'quiz', lazy = True, cascade = 'all, delete')
 
     def __repr__(self):
-        return f"Quiz('{self.chapterid}', '{self.dateofquiz}', '{self.timeduration}')"
+        return f"Quiz('{self.quizid}', '{self.chapterid}', '{self.dateofquiz}', '{len(self.question)}', '{self.timeduration}')"
 
 class Questions(db.Model):
     qid = db.Column(db.Integer, primary_key = True)
@@ -64,7 +64,7 @@ class Questions(db.Model):
     option_b = db.Column(db.String(60), nullable = False)
     option_c = db.Column(db.String(60), nullable = False)
     option_d = db.Column(db.String(60), nullable = False)
-    correct_option = db.Column(db.String(60), nullable = False)
+    correct_option = db.Column(db.Integer, nullable = False)
     quizid = db.Column(db.Integer, db.ForeignKey('quiz.quizid'), nullable = False)
 
     def __repr__(self):
@@ -72,7 +72,7 @@ class Questions(db.Model):
 
 class Scores(db.Model):
     scoreid = db.Column(db.Integer, primary_key = True)
-    time_stamp_attempt = db.Column(db.DateTime, nullable = True, default = datetime.utcnow)
+    time_stamp_attempt = db.Column(db.DateTime, nullable = True, default = datetime.now)
     totalscore = db.Column(db.Integer, nullable = False)
     quizid = db.Column(db.Integer, db.ForeignKey('quiz.quizid'), nullable = False)
     userid = db.Column(db.Integer, db.ForeignKey('user.userid'), nullable = False)

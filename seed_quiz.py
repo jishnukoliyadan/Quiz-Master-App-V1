@@ -104,7 +104,7 @@ questions_data = [
      'option_b' : '-66x²',
      'option_c' : 'x²',
      'option_d' : '-x²',
-     'correct_option' : 1,
+     'correct_option' : 2,
      'quizid' : 1,
      },
     {'question_statement' : 'The product of 4x and 0 is:',

@@ -1,0 +1,87 @@
+{% extends "users/base_dashboard.html" %}
+{% block section %}
+
+<div style="padding-bottom: 20px;">
+    <form class="container card mt-3" id="answerForm" style="max-width: 70%;" method="POST">
+        <div class="card-body mt-2" style="color: #2273cf;">
+            {% for question in questions %}
+            {% set optionNO = 1 %}
+            <div class="card-header" style="color: black; {% if loop.index != 1 %} margin-top: 5rem; {% endif %}">
+                <strong>Question {{ loop.index }} : </strong>{{ question.question_statement}}
+            </div>
+            <table class="table justify-content-center mx-auto text-center" style="max-width: 70%;"> {# table-borderless
+                #}
+                <tbody>
+                    <div class="mt-2 mb-1" style="padding-left: 3rem;">
+                        <strong>Options : </strong>
+                    </div>
+                    <tr>
+                        <td>{{ optionNO }}).</td>
+                        <td>{{ question.option_a }}</td>
+                        <td><input type="radio" name="question_{{ question.qid }}_option" value="1"></td>
+                    </tr>
+                    <tr>
+                        <td>{{ optionNO + 1 }}).</td>
+                        <td>{{ question.option_b }}</td>
+                        <td><input type="radio" name="question_{{ question.qid }}_option" value="2"></td>
+                    </tr>
+                    <tr>
+                        <td>{{ optionNO + 2 }}).</td>
+                        <td>{{ question.option_c }}</td>
+                        <td><input type="radio" name="question_{{ question.qid }}_option" value="3"></td>
+                    </tr>
+                    <tr>
+                        <td>{{ optionNO + 3 }}).</td>
+                        <td>{{ question.option_d }}</td>
+                        <td><input type="radio" name="question_{{ question.qid }}_option" value="4"></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            {% endfor %}
+
+            <div class="d-flex justify-content-around mt-4">
+                <button type="submit" class="btn btn-success me-3" onclick="return confirmSubmit()">
+                    Save and Submit
+                </button>
+                <a href="{{ url_for('user_dashboard') }}" class="btn btn-danger me-3">
+                    Cancel
+                </a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    function confirmSubmit() {
+        return confirm("Are you submitting the quiz?");
+    }
+
+    // https://css-tricks.com/snippets/javascript/loop-queryselectorall-matches/
+    // https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelectorAll
+    // https://www.w3schools.com/jsref/met_document_queryselectorall.asp
+    // https://stackoverflow.com/questions/11355907/how-to-select-all-a-tag-and-register-onclick-event
+
+    document.querySelectorAll('a').forEach(link => {
+        link.onclick = function (event) {
+            if (!confirm("You will be terminated from the Quiz!")) {
+                event.preventDefault();
+            }
+        };
+    });
+
+    let timeLimit = {{ quiz.timeduration }};
+    const form = document.getElementById('answerForm');
+    function timer() {
+        let minutes = Math.floor(timeLimit / 60);
+        let seconds = timeLimit % 60;
+        if (timeLimit === 0) {
+            form.submit();
+        }
+        timeLimit--;
+        console.log(timeLimit + "s")
+    }
+    setInterval(timer, 1000);
+</script>
+
+{% endblock %}
