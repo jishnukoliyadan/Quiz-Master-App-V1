@@ -365,6 +365,6 @@ def quiz_attempt(qid):
             db.session.commit()
             flash('Submission successful. Submit anytime before the deadline; only the final one counts', 'success')
             return redirect(url_for('user_dashboard'))
-        return render_template('users/quiz_attempt.html', questions = questions)
+        return render_template('users/quiz_attempt.html', questions = questions, quiz = quiz)
     flash('Login to access the page', 'danger')
     return redirect(url_for('login'))
