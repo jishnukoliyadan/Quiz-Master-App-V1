@@ -2,10 +2,11 @@ from flask import request, render_template
 from flask import redirect, flash, url_for
 from flask import session
 from quizapp import app, db
-from quizapp.models import User, Quiz, Questions
+from quizapp.models import Scores, User, Quiz, Questions
 from quizapp.models import Chapter, Subject
 from datetime import date
-# Scores
+
+today = date.today()
 
 @app.route('/')
 def home():
@@ -81,7 +82,11 @@ def admin_dashboard():
 def user_dashboard():
     session.pop('admin_id', None)
     if 'user_id' in session:
-        return render_template('users/dashboard.html')
+        # https://www.janbasktraining.com/community/sql-server/how-can-i-use-order_by-of-sqlalchemy-to-retrieve-data-in-descending-and-ascending-order
+        quizzes = Quiz.query.join(Quiz.question).group_by(Quiz.quizid)
+        coming_quizzes = quizzes.filter(Quiz.dateofquiz > today).order_by(Quiz.dateofquiz.asc())
+        expired_quizzes = quizzes.filter(Quiz.dateofquiz < today).order_by(Quiz.dateofquiz.desc())
+        return render_template('users/dashboard.html', coming_quizzes = coming_quizzes, expired_quizzes = expired_quizzes)
     flash('Login to access the page', 'danger')
     return redirect(url_for('login'))
 
@@ -145,7 +150,7 @@ def add_question(qid):
         quiz = Quiz.query.filter(Quiz.quizid == qid).first()
         if request.method == 'POST':
             q_statement = request.form.get('q_statement')
-            question_exists = Questions.query.filter(Questions.question_statement.ilike(f'%{q_statement}%')).first()
+            question_exists = Questions.query.filter(Questions.quizid == qid, Questions.question_statement.ilike(f'%{q_statement}%')).first()
             if question_exists:
                 flash(f'Question exists in {quiz.qname}!', 'danger')
                 return redirect(url_for('manage_quizzes'))
@@ -329,3 +334,37 @@ def view_chapter(cid):
         return render_template('admin/view_chapter.html', chapter = chapter)
     flash('Login to access the page', 'danger')
     return redirect(url_for('admin_login'))
+
+@app.route('/quiz_details/<int:qid>', methods = ['GET', 'POST'])
+def quiz_details(qid):
+    if 'user_id' in session:
+        quiz = Quiz.query.get_or_404(qid)
+        return render_template('users/quiz_details.html', quiz = quiz)
+    flash('Login to access the page', 'danger')
+    return redirect(url_for('login'))
+
+@app.route('/quiz/<int:qid>', methods = ['GET', 'POST'])
+def quiz_attempt(qid):
+    if 'user_id' in session:
+        quiz = Quiz.query.get_or_404(qid)
+        if not quiz.dateofquiz.date() >= today:
+            flash('The quiz was expired!', 'danger')
+            return redirect(url_for('quiz_details', qid = qid))
+        questions = quiz.question
+        if request.method == "POST":
+            qscore = 0
+            for question in questions:
+                user_answer = request.form.get(f'question_{ question.qid }_option')
+                user_answer = int(user_answer) if user_answer != None else None
+                if user_answer == question.correct_option:
+                    qscore += 1
+            scores = Scores(**{'userid' : session.get('user_id'),
+                               'quizid' : question.quiz.quizid,
+                               'totalscore' : qscore})
+            db.session.add(scores)
+            db.session.commit()
+            flash('Submission successful. Submit anytime before the deadline; only the final one counts', 'success')
+            return redirect(url_for('user_dashboard'))
+        return render_template('users/quiz_attempt.html', questions = questions)
+    flash('Login to access the page', 'danger')
+    return redirect(url_for('login'))

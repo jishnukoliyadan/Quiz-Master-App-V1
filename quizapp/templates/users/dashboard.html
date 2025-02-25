@@ -9,48 +9,81 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th scope="col">ID</th>
-                        <th scope="col">No.of.Questions</th>
-                        <th scope="col">Date</th>
-                        <th scope="col">Duration(HH:MM)</th>
-                        <th scope="col">Action</th>
+                        <th>#</th>
+                        <th>Subject Name</th>
+                        <th>Chapter Name</th>
+                        <th>No.of.Questions</th>
+                        <th>Date</th>
+                        <th>Duration(HH:MM)</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
+                    {% for quiz in coming_quizzes%}
                     <tr>
-                        <th>1</th>
-                        <td>05</td>
-                        <td>dd/mm/yyy</td>
-                        <td>00:10</td>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ quiz.chapter.subject.sname }}</td>
+                        <td>{{ quiz.chapter.cname }}</td>
+                        <td>{{ quiz.question | length }}</td>
+                        <td>{{ quiz.dateofquiz.strftime('%Y-%m-%d') }}</td>
+                        
+                        {# https://stackoverflow.com/a/4181605 #}
+                        {% set hour = quiz.timeduration // 3600 %}
+                        {% set minute = quiz.timeduration % 3600 // 60 %}
+
+                        {# https://stackoverflow.com/a/58233733 #}
+                        {# https://stackoverflow.com/a/32087396 #}
+                        <td>{{ "%02d:%02d" % (hour, minute) }}</td>
                         <td>
-                            <a href="#" class="btn btn-outline-primary btn-sm">View</a>
-                            <a href="#" class="btn btn-outline-success btn-sm">Start</a>
+                            <a href="{{url_for('quiz_details', qid = quiz.quizid) }}" class="btn btn-outline-primary btn-sm">View Details</a>
                         </td>
                     </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card text-center mt-5">
+        <div class="card-body">
+            <h5 class="card-title">Expired Quizzes</h5>
+            <table class="table">
+                <thead>
                     <tr>
-                        <th>2</th>
-                        <td>10</td>
-                        <td>dd/mm/yyy</td>
-                        <td>00:10</td>
+                        <th>#</th>
+                        <th>Subject Name</th>
+                        <th>Chapter Name</th>
+                        <th>No.of.Questions</th>
+                        <th>Date</th>
+                        <th>Duration(HH:MM)</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for quiz in expired_quizzes%}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ quiz.chapter.subject.sname }}</td>
+                        <td>{{ quiz.chapter.cname }}</td>
+                        <td>{{ quiz.question | length }}</td>
+                        <td>{{ quiz.dateofquiz.strftime('%Y-%m-%d') }}</td>
+                        
+                        {# https://stackoverflow.com/a/4181605 #}
+                        {% set hour = quiz.timeduration // 3600 %}
+                        {% set minute = quiz.timeduration % 3600 // 60 %}
+
+                        {# https://stackoverflow.com/a/58233733 #}
+                        {# https://stackoverflow.com/a/32087396 #}
+                        <td>{{ "%02d:%02d" % (hour, minute) }}</td>
                         <td>
-                            <a href="#" class="btn btn-outline-primary btn-sm">View</a>
-                            <a href="#" class="btn btn-outline-success btn-sm">Start</a>
+                            <a href="{{url_for('quiz_details', qid = quiz.quizid) }}" class="btn btn-outline-primary btn-sm">View Details</a>
                         </td>
                     </tr>
-                    <tr>
-                        <th>3</th>
-                        <td>15</td>
-                        <td>dd/mm/yyy</td>
-                        <td>00:20</td>
-                        <td>
-                            <a href="#" class="btn btn-outline-primary btn-sm">View</a>
-                            <a href="#" class="btn btn-outline-success btn-sm">Start</a>
-                        </td>
-                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
 </section>
 
-{% endblock %}]]]
+{% endblock %}
