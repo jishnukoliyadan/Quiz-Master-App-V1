@@ -37,14 +37,20 @@
                         {# https://stackoverflow.com/a/32087396 #}
                         <td>{{ "%02d:%02d" % (hour, minute) }}</td>
                         <td>
-                            <a href="{{url_for('quiz_details', qid = quiz.quizid) }}" class="btn btn-outline-primary btn-sm">View Details</a>
+                            <a href="{{url_for('quiz_details', qid = quiz.quizid) }}"
+                                class="btn btn-outline-primary btn-sm">View Details</a>
                         </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center text-muted py-3">No ongoing quiz found, try again later!</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
+    {% if expired_quizzes.count() > 0 %}
     <div class="card text-center mt-4">
         <div class="card-body">
             <h5 class="card-title">Expired Quizzes</h5>
@@ -79,7 +85,8 @@
                         {# https://stackoverflow.com/a/32087396 #}
                         <td>{{ "%02d:%02d" % (hour, minute) }}</td>
                         <td>
-                            <a href="{{url_for('quiz_details', qid = quiz.quizid) }}" class="btn btn-outline-primary btn-sm">View Details</a>
+                            <a href="{{url_for('quiz_details', qid = quiz.quizid) }}"
+                                class="btn btn-outline-primary btn-sm">View Details</a>
                         </td>
                     </tr>
                     {% endfor %}
@@ -87,6 +94,7 @@
             </table>
         </div>
     </div>
+    {% endif %}
 </section>
 
 {% endblock %}

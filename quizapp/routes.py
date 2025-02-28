@@ -352,19 +352,21 @@ def quiz_attempt(qid):
             return redirect(url_for('quiz_details', qid = qid))
         questions = quiz.question
         if request.method == "POST":
-            qscore = 0
+            user_inputs, qscore = [], 0
             for question in questions:
                 user_answer = request.form.get(f'question_{ question.qid }_option')
                 user_answer = int(user_answer) if user_answer != None else None
                 if user_answer == question.correct_option:
                     qscore += 1
+                user_inputs.append(user_answer)
             scores = Scores(**{'userid' : session.get('user_id'),
                                'quizid' : question.quiz.quizid,
                                'totalscore' : qscore})
+            scores.store_inputs(user_inputs)
             db.session.add(scores)
             db.session.commit()
             flash('Submission successful. Submit anytime before the deadline; only the final one counts', 'success')
-            return redirect(url_for('user_dashboard'))
+            return redirect(url_for('scores_dashboard'))
         return render_template('users/quiz_attempt.html', questions = questions, quiz = quiz)
     flash('Login to access the page', 'danger')
     return redirect(url_for('login'))
@@ -375,8 +377,8 @@ def scores_dashboard():
         ongoing_quizzes = Quiz.query.filter(Quiz.dateofquiz > today).order_by(Quiz.dateofquiz.asc())
         expired_quizzes = Quiz.query.filter(Quiz.dateofquiz < today).order_by(Quiz.dateofquiz.asc())
         scores = Scores.query.join(Scores.quiz)\
-                                .filter(Scores.userid == 5, Quiz.dateofquiz < today)\
-                                .order_by(Scores.time_stamp_attempt.asc())
+                                .filter(Scores.userid == session['user_id'], Quiz.dateofquiz < today)\
+                                .order_by(Scores.time_stamp_attempt.desc())
         expired_quiz_submitted, attempted_quiz_ids, attempt_count = list(), set(), dict()
         for score in scores:
             if score.quizid not in attempted_quiz_ids:
@@ -404,5 +406,20 @@ def view_solutions(qid):
             flash('Selected Quiz is still on', 'info')
             return redirect(url_for('scores_dashboard'))
         return render_template('users/view_solutions.html', quiz = quiz)
+    flash('Login to access the page', 'danger')
+    return redirect(url_for('login'))
+
+@app.route('/results/<int:sid>', methods = ['GET', 'POST'])
+def view_result(sid):
+    if 'user_id' in session:
+        score = Scores.query.get_or_404(sid)
+        quiz = Quiz.query.filter(Quiz.dateofquiz < today, Quiz.quizid == score.quizid).first()
+        if not quiz:
+            flash('Selected Quiz is still on', 'info')
+            return redirect(url_for('scores_dashboard'))
+        attempts = Scores.query.join(Scores.quiz).filter(Scores.userid == score.userid,
+                                       Scores.quizid == score.quizid,
+                                       Scores.scoreid != sid).order_by(Quiz.dateofquiz.asc())
+        return render_template('users/view_result.html', score = score, attempts = attempts)
     flash('Login to access the page', 'danger')
     return redirect(url_for('login'))

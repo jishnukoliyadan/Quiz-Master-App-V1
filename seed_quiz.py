@@ -4,6 +4,7 @@ from quizapp import db, DB_NAME
 from quizapp.models import User, Subject, Chapter
 from quizapp.models import Questions, Quiz, Scores
 from datetime import date
+import json 
 
 if os.path.exists(f'./instance/{DB_NAME}'):
     os.remove(f'./instance/{DB_NAME}')
@@ -219,8 +220,8 @@ questions_data = [
      }]
 
 scores_data = [
-    {'userid' : '1' , 'quizid' : '1', 'totalscore' : '2'},
-    {'userid' : '2' , 'quizid' : '2', 'totalscore' : '3'}]
+    {'userid' : '2' , 'quizid' : '1', 'totalscore' : '2', 'user_input' : json.dumps([4, None, 3])},
+    {'userid' : '3' , 'quizid' : '2', 'totalscore' : '3', 'user_input' : json.dumps([1, 2, 1])}]
 
 admin = User(**{'username' : os.getenv('ADMIN_USERNAME'),
                 'password' : os.getenv('ADMIN_PASSWORD'),
