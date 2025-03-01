@@ -20,7 +20,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for quiz in coming_quizzes%}
+                    {% for quiz in ongoing_quizzes%}
                     <tr>
                         <td>{{ loop.index }}</td>
                         <td>{{ quiz.qname }}</td>
@@ -28,7 +28,7 @@
                         <td>{{ quiz.chapter.cname }}</td>
                         <td>{{ quiz.question | length }}</td>
                         <td>{{ quiz.dateofquiz.strftime('%Y-%m-%d') }}</td>
-                        
+
                         {# https://stackoverflow.com/a/4181605 #}
                         {% set hour = quiz.timeduration // 3600 %}
                         {% set minute = quiz.timeduration % 3600 // 60 %}
@@ -38,7 +38,9 @@
                         <td>{{ "%02d:%02d" % (hour, minute) }}</td>
                         <td>
                             <a href="{{url_for('quiz_details', qid = quiz.quizid) }}"
-                                class="btn btn-outline-primary btn-sm">View Details</a>
+                                class="btn btn-outline-info btn-sm">Details</a>
+                            <a href="{{url_for('quiz_attempt', qid = quiz.quizid) }}"
+                                class="btn btn-outline-primary btn-sm">Attempt</a>
                         </td>
                     </tr>
                     {% else %}
@@ -50,43 +52,74 @@
             </table>
         </div>
     </div>
-    {% if expired_quizzes.count() > 0 %}
+    {% if expired_quiz_submitted | length > 0 %}
     <div class="card text-center mt-4">
         <div class="card-body">
-            <h5 class="card-title">Expired Quizzes</h5>
+            <h5 class="card-title">Expired Attempted Quizzes</h5>
             <table class="table">
                 <thead>
                     <tr>
                         <th>#</th>
                         <th>Quiz Name</th>
-                        <th>Subject Name</th>
                         <th>Chapter Name</th>
+                        <th>Subject Name</th>
                         <th>No.of.Questions</th>
-                        <th>Date</th>
-                        <th>Duration(HH:MM)</th>
+                        <th>No.of.Attempts</th>
+                        <th>Quiz DeadLine</th>
                         <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for quiz in expired_quizzes%}
+                    {% for score in expired_quiz_submitted%}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ score.quiz.qname }}</td>
+                        <td>{{ score.quiz.chapter.cname }}</td>
+                        <td>{{ score.quiz.chapter.subject.sname }}</td>
+                        <td>{{ score.quiz.question | length }}</td>
+                        <td>{{ attempt_count.get(score.quizid, 0) }}</td>
+                        <td>{{ score.quiz.dateofquiz.strftime('%Y-%m-%d') }}</td>
+                        <td>
+                            <a href="{{url_for('view_result', sid = score.scoreid) }}"
+                                class="btn btn-outline-success btn-sm">View Result</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+    {% if unattempted_quizzes | length > 0 %}
+    <div class="card text-center mt-4">
+        <div class="card-body">
+            <h5 class="card-title">Expired NON-Attempted Quizzes</h5>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Quiz Name</th>
+                        <th>Chapter Name</th>
+                        <th>Subject Name</th>
+                        <th>No.of.Questions</th>
+                        <th>No.of.Attempts</th>
+                        <th>Quiz DeadLine</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for quiz in unattempted_quizzes%}
                     <tr>
                         <td>{{ loop.index }}</td>
                         <td>{{ quiz.qname }}</td>
-                        <td>{{ quiz.chapter.subject.sname }}</td>
                         <td>{{ quiz.chapter.cname }}</td>
+                        <td>{{ quiz.chapter.subject.sname }}</td>
                         <td>{{ quiz.question | length }}</td>
+                        <td>{{ attempt_count.get(quiz.quizid, 0) }}</td>
                         <td>{{ quiz.dateofquiz.strftime('%Y-%m-%d') }}</td>
-                        
-                        {# https://stackoverflow.com/a/4181605 #}
-                        {% set hour = quiz.timeduration // 3600 %}
-                        {% set minute = quiz.timeduration % 3600 // 60 %}
-
-                        {# https://stackoverflow.com/a/58233733 #}
-                        {# https://stackoverflow.com/a/32087396 #}
-                        <td>{{ "%02d:%02d" % (hour, minute) }}</td>
                         <td>
-                            <a href="{{url_for('quiz_details', qid = quiz.quizid) }}"
-                                class="btn btn-outline-primary btn-sm">View Details</a>
+                            <a href="{{url_for('view_solutions', qid = quiz.quizid) }}"
+                                class="btn btn-outline-warning btn-sm">View Details</a>
                         </td>
                     </tr>
                     {% endfor %}

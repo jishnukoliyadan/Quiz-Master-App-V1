@@ -1,5 +1,6 @@
 from datetime import datetime
 from quizapp import app, db, bcrypt
+import json
 
 class User(db.Model):
     userid = db.Column(db.Integer, primary_key = True)
@@ -76,6 +77,13 @@ class Scores(db.Model):
     totalscore = db.Column(db.Integer, nullable = False)
     quizid = db.Column(db.Integer, db.ForeignKey('quiz.quizid'), nullable = False)
     userid = db.Column(db.Integer, db.ForeignKey('user.userid'), nullable = False)
+    user_input = db.Column(db.Text, nullable = False, default = '')
+
+    def store_inputs(self, user_input):
+        self.user_input = json.dumps(user_input)
+
+    def get_inputs(self):
+        return json.loads(self.user_input)
     
     def __repr__(self):
         return f"Scores('{self.scoreid}', '{self.userid}', '{self.time_stamp_attempt}', '{self.totalscore}')"
