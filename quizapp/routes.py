@@ -6,6 +6,7 @@ from quizapp.models import Scores, User, Quiz, Questions
 from quizapp.models import Chapter, Subject
 from datetime import date
 from sqlalchemy import or_
+from quizapp.utils import *
 
 today = date.today()
 

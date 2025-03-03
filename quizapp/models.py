@@ -77,7 +77,7 @@ class Scores(db.Model):
     totalscore = db.Column(db.Integer, nullable = False)
     quizid = db.Column(db.Integer, db.ForeignKey('quiz.quizid'), nullable = False)
     userid = db.Column(db.Integer, db.ForeignKey('user.userid'), nullable = False)
-    user_input = db.Column(db.Text, nullable = False, default = '')
+    user_input = db.Column(db.Text, nullable = False, default = json.dumps([]))
 
     def store_inputs(self, user_input):
         self.user_input = json.dumps(user_input)
