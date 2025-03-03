@@ -1,0 +1,218 @@
+{% extends "admin/base_dashboard.html" %}
+{% block section %}
+
+<form class="d-flex container mt-5" role="search" method="POST" style="max-width: 50%;">
+    <input class="form-control me-2" type="search" name="search"
+        placeholder="{{ search_term if length_ > 0 else 'New Search' }}" aria-label="Search" required>
+    <button class="btn btn-outline-success" type="submit">Search</button>
+</form>
+
+<section class="container text-center" style="max-width: 80%; font-size: 0.95rem;">
+    {% if userQuery | length > 0 %}
+    <div class="card card-body mt-4">
+        <h5 class="card-title">Users</h5>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>User Name</th>
+                    <th>Full Name</th>
+                    <th>Qualifications</th>
+                    <th>Date Of Birth</th>
+                    <th>No.of Quiz Attempts</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in userQuery%}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.fullname }}</td>
+                    <td>{{ user.qualification }}</td>
+                    <td>{{ user.dob.strftime('%Y-%m-%d') }}</td>
+                    <td>{{ user.scores | length }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    {% if subjectQuery | length > 0 %}
+    <div class="card card-body mt-4">
+        <h5 class="card-title">Subjects</h5>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Subject Name</th>
+                    <th>Description</th>
+                    <th>No.of Chapters</th>
+                    <th>No.of Quizzes</th>
+                    <th>No.of Questions</th>
+                    <th>No.of Quiz Attempts</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for subject in subjectQuery%}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>
+                        <a href="{{ url_for('view_subject', sid = subject.sid) }}" class="text-decoration-none">
+                            {{ subject.sname }}
+                        </a>
+                    </td>
+                    <td>{{ subject.description }}</td>
+                    <td>{{ subject.chapters | length }}</td>
+                    <td>{{ subject.chapters | map(attribute='quizzes') | map('length') | sum }}</td>
+                    <td>{{ subject.chapters | map(attribute='quizzes') | sum(start=[]) | map(attribute='question') |
+                        map('length') | sum }}</td>
+                    <td>{{ subject.chapters | map(attribute='quizzes') | sum(start=[]) | map(attribute='scores') |
+                        map('length') | sum }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    {% if chapterQuery | length > 0 %}
+    <div class="card card-body mt-4">
+        <h5 class="card-title">Chapter</h5>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Chapter Name</th>
+                    <th>Description</th>
+                    <th>Subject Name</th>
+                    <th>No.of Quizzes</th>
+                    <th>No.of Questions</th>
+                    <th>No.of Quizz Attempts</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for chapter in chapterQuery%}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>
+                        <a href="{{ url_for('view_chapter', cid = chapter.cid) }}" class="text-decoration-none">
+                            {{ chapter.cname }}
+                        </a>
+                    </td>
+                    <td>{{ chapter.description }}</td>
+                    <td>
+                        <a href="{{ url_for('view_subject', sid = chapter.subject.sid) }}" class="text-decoration-none">
+                            {{ chapter.subject.sname }}
+                        </a>
+                    </td>
+                    <td>{{ chapter.quizzes | length }}</td>
+                    <td>{{ chapter.quizzes | map(attribute='question') | map('length') | sum }}</td>
+                    <td>{{ chapter.quizzes | map(attribute='scores') | map('length') | sum }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    {% if quizQuery | length > 0 %}
+    <div class="card card-body mt-4">
+        <h5 class="card-title">Quizzes</h5>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Quiz Name</th>
+                    <th>Chapter Name</th>
+                    <th>Subject Name</th>
+                    <th>Time Duration</th>
+                    <th>No.of Questions</th>
+                    <th>Quiz Deadline</th>
+                    <th>No.of Quizz Attempts</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for quiz in quizQuery%}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>
+                        <a href="{{ url_for('view_quiz', qid = quiz.quizid) }}" class="text-decoration-none">
+                            {{ quiz.qname }}
+                        </a>
+                    </td>
+                    <td>
+                        <a href="{{ url_for('view_chapter', cid = quiz.chapter.cid) }}" class="text-decoration-none">
+                            {{ quiz.chapter.cname }}
+                        </a>
+                    </td>
+                    <td>
+                        <a href="{{ url_for('view_subject', sid = quiz.chapter.subject.sid) }}"
+                            class="text-decoration-none">
+                            {{ quiz.chapter.subject.sname }}
+                        </a>
+                    </td>
+                    <td>{{ quiz.timeduration }}s</td>
+                    <td>{{ quiz.question | length }}</td>
+                    <td>{{ quiz.dateofquiz.strftime('%Y-%m-%d') }}</td>
+                    <td>{{ quiz.scores | length }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    {% if questionQuery | length > 0 %}
+    <div class="card card-body mt-4">
+        <h5 class="card-title">Questions</h5>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Question Statement</th>
+                    <th>Quiz Name</th>
+                    <th>Subject Name</th>
+                    <th>Chapter Name</th>
+                    <th>Quiz DeadLine</th>
+                    <th>No.of Quizz Attempts</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for question in questionQuery%}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>
+                        <a href="{{ url_for('view_question', qid = question.qid)}}" class="text-decoration-none">
+                            {{ question.question_statement }}
+                        </a>
+                    </td>
+                    <td>
+                        <a href="{{ url_for('view_quiz', qid = question.quiz.quizid) }}" class="text-decoration-none">
+                            {{ question.quiz.qname }}
+                        </a>
+                    </td>
+                    <td>
+                        <a href="{{ url_for('view_subject', sid = question.quiz.chapter.subject.sid) }}"
+                            class="text-decoration-none">
+                            {{ question.quiz.chapter.subject.sname }}
+                        </a>
+                    </td>
+                    <td>
+                        <a href="{{ url_for('view_chapter', cid = question.quiz.chapter.cid) }}"
+                            class="text-decoration-none">
+                            {{ question.quiz.chapter.cname }}
+                        </a>
+                    </td>
+                    <td>{{ question.quiz.dateofquiz.strftime('%Y-%m-%d') }}</td>
+                    <td>{{ question.quiz.scores | length}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+</section>
+{% endblock %}
+

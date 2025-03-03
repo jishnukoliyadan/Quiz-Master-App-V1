@@ -5,15 +5,20 @@ from quizapp import app, db
 from quizapp.models import Scores, User, Quiz, Questions
 from quizapp.models import Chapter, Subject
 from datetime import date
+from sqlalchemy import or_
 
 today = date.today()
 
 @app.route('/')
 def home():
+    session.pop('admin_id', None)
+    session.pop('user_id', None)
     return render_template('base_main.html')
 
 @app.route('/register', methods = ['GET', 'POST'])
 def register():
+    session.pop('admin_id', None)
+    session.pop('user_id', None)
     if request.method == 'POST':
         username = request.form.get('username')
         user_exists = User.query.filter(User.username == username, User.role == 'User').first()
@@ -35,6 +40,8 @@ def register():
 
 @app.route('/admin/login', methods = ['GET', 'POST'])
 def admin_login():
+    session.pop('admin_id', None)
+    session.pop('user_id', None)
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
@@ -49,6 +56,8 @@ def admin_login():
 
 @app.route('/login', methods = ['GET', 'POST'])
 def login():
+    session.pop('admin_id', None)
+    session.pop('user_id', None)
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
@@ -76,7 +85,6 @@ def admin_dashboard():
         return render_template('admin/dashboard.html', subjects = subjects)
     flash('Login to access the page', 'danger')
     return redirect(url_for('admin_login'))
-
 
 @app.route('/home')
 def user_dashboard():
@@ -423,3 +431,67 @@ def view_result(sid):
         return render_template('users/view_result.html', score = score, attempts = attempts)
     flash('Login to access the page', 'danger')
     return redirect(url_for('login'))
+
+@app.route('/admin/search', methods = ['GET', 'POST'])
+def admin_search():
+    if 'admin_id' in session:
+        length_= 0
+        userQuery, subjectQuery, chapterQuery, quizQuery, questionQuery = [], [], [], [], []
+        if request.method == 'POST':
+            search_term = request.form.get('search')
+            search_pattern = f"%{search_term}%"
+            # https://stackoverflow.com/a/7942571
+            userQuery = User.query.filter(or_(User.username.ilike(search_pattern),
+                                              User.fullname.ilike(search_pattern),
+                                              User.qualification.ilike(search_pattern))).all()
+            subjectQuery = Subject.query.filter(or_(Subject.sname.ilike(search_pattern),
+                                                    Subject.description.ilike(search_pattern))).all()
+            chapterQuery = Chapter.query.filter(or_(Chapter.cname.ilike(search_pattern),
+                                                    Chapter.description.ilike(search_pattern))).all()
+            quizQuery = Quiz.query.filter(or_(Quiz.qname.ilike(search_pattern),
+                                              Quiz.remarks.ilike(search_pattern))).all()
+            questionQuery = Questions.query.filter(Questions.question_statement.ilike(search_pattern)).all()
+
+            length_ = len(userQuery + subjectQuery + chapterQuery + quizQuery + questionQuery)
+            return render_template('admin/search.html', length_= length_, search_term = search_term,
+                                   userQuery = userQuery, subjectQuery = subjectQuery,
+                                   chapterQuery = chapterQuery, quizQuery = quizQuery,
+                                   questionQuery = questionQuery)
+        return render_template('admin/search.html', length_ = length_, userQuery = userQuery,
+                                    subjectQuery = subjectQuery, chapterQuery = chapterQuery,
+                                    quizQuery = quizQuery, questionQuery = questionQuery)
+    flash('Login to access the page', 'danger')
+    return redirect(url_for('login'))
+
+@app.route('/search', methods = ['GET', 'POST'])
+def user_search():
+    if 'user_id' in session:
+        length_= 0
+        subjectQuery, chapterQuery, quizQuery = [], [], []
+        if request.method == 'POST':
+            search_term = request.form.get('search')
+            search_pattern = f"%{search_term}%"
+            # https://stackoverflow.com/a/7942571
+            subjectQuery = Subject.query.filter(or_(Subject.sname.ilike(search_pattern),
+                                                    Subject.description.ilike(search_pattern))).all()
+            chapterQuery = Chapter.query.filter(or_(Chapter.cname.ilike(search_pattern),
+                                                    Chapter.description.ilike(search_pattern))).all()
+            quizQuery = Quiz.query.filter(or_(Quiz.qname.ilike(search_pattern),
+                                              Quiz.remarks.ilike(search_pattern))).all()
+            length_ = len(subjectQuery + chapterQuery + quizQuery)
+            return render_template('users/search.html', length_= length_, search_term = search_term,
+                                   subjectQuery = subjectQuery,
+                                   chapterQuery = chapterQuery, quizQuery = quizQuery)
+        return render_template('users/search.html', length_ = length_,
+                                    subjectQuery = subjectQuery, chapterQuery = chapterQuery,
+                                    quizQuery = quizQuery)
+    flash('Login to access the page', 'danger')
+    return redirect(url_for('login'))
+
+@app.route('/admin/users')
+def view_users():
+    if 'admin_id' in session:
+        users = User.query.filter(User.role == 'User')
+        return render_template('admin/view_users.html', users = users)
+    flash('Login to access the page', 'danger')
+    return redirect(url_for('admin_login'))

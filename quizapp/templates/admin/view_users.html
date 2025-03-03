@@ -1,0 +1,41 @@
+{% extends "admin/base_dashboard.html" %}
+{% block section %}
+
+<div class="container card mt-5" style="max-width: 70%;">
+    <div class="card-body mt-2" style="color: #2273cf;">
+        <div class="card-title text-center mb-3">
+            <h5 style="color: orange;">User Details</h5>
+        </div>
+
+        <table class="table text-center mt-4">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>User Name</th>
+                    <th>LoginID</th>
+                    <th>Qualification</th>
+                    <th>Date Of Birth</th>
+                    <th>Total Quiz Attempts</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users%}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ user.fullname }}</td>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.qualification }}</td>
+                    <td>{{ user.dob.strftime('%Y-%m-%d') }}</td>
+                    <td>{{ user.scores | length }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-3">No registrations have been completed yet!</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}
