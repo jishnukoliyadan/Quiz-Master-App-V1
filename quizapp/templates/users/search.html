@@ -1,0 +1,115 @@
+{% extends "users/base_dashboard.html" %}
+{% block section %}
+
+<form class="d-flex container mt-5" role="search" method="POST" style="max-width: 50%;">
+    <input class="form-control me-2" type="search" name="search"
+        placeholder="{{ search_term if length_ > 0 else 'New Search' }}" aria-label="Search" required>
+    <button class="btn btn-outline-success" type="submit">Search</button>
+</form>
+
+<section class="container text-center" style="max-width: 80%; font-size: 0.95rem;">
+    {% if subjectQuery | length > 0 %}
+    <div class="card card-body mt-4">
+        <h5 class="card-title">Subjects</h5>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Subject Name</th>
+                    <th>Description</th>
+                    <th>No.of Chapters</th>
+                    <th>No.of Quizzes</th>
+                    <th>No.of Questions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for subject in subjectQuery%}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ subject.sname }}</td>
+                    <td>{{ subject.description }}</td>
+                    <td>{{ subject.chapters | length }}</td>
+                    <td>{{ subject.chapters | map(attribute='quizzes') | map('length') | sum }}</td>
+                    <td>{{ subject.chapters | map(attribute='quizzes') | sum(start=[]) | map(attribute='question') |
+                        map('length') | sum }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    {% if chapterQuery | length > 0 %}
+    <div class="card card-body mt-4">
+        <h5 class="card-title">Chapter</h5>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Chapter Name</th>
+                    <th>Description</th>
+                    <th>Subject Name</th>
+                    <th>No.of Quizzes</th>
+                    <th>No.of Questions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for chapter in chapterQuery%}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ chapter.cname }}</td>
+                    <td>{{ chapter.description }}</td>
+                    <td>{{ chapter.subject.sname }}</td>
+                    <td>{{ chapter.quizzes | length }}</td>
+                    <td>{{ chapter.quizzes | map(attribute='question') | map('length') | sum }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    {% if quizQuery | length > 0 %}
+    <div class="card card-body mt-4">
+        <h5 class="card-title">Quizzes</h5>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Quiz Name</th>
+                    <th>Chapter Name</th>
+                    <th>Subject Name</th>
+                    <th>Time Duration</th>
+                    <th>No.of Questions</th>
+                    <th>Quiz Deadline</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for quiz in quizQuery%}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>
+                        <a href="{{ url_for('quiz_details', qid = quiz.quizid) }}" class="text-decoration-none">
+                            {{ quiz.qname }}
+                        </a>
+                    </td>
+                    <td>{{ quiz.chapter.cname }}</td>
+                    <td>{{ quiz.chapter.subject.sname }}</td>
+                    <td>{{ quiz.timeduration }}s</td>
+                    <td>{{ quiz.question | length }}</td>
+                    <td>{{ quiz.dateofquiz.strftime('%Y-%m-%d') }}</td>
+                    <td>
+                        <a href="{{ url_for('quiz_attempt', qid = quiz.quizid)}}" class="btn btn-success btn-sm">
+                            Start Now
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+</section>
+{% endblock %}
