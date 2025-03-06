@@ -6,7 +6,7 @@ from quizapp.models import Scores, User, Quiz, Questions
 from quizapp.models import Chapter, Subject
 from datetime import date
 from sqlalchemy import or_
-from quizapp.utils import *
+from quizapp import utils
 
 today = date.today()
 
@@ -494,5 +494,37 @@ def view_users():
     if 'admin_id' in session:
         users = User.query.filter(User.role == 'User')
         return render_template('admin/view_users.html', users = users)
+    flash('Login to access the page', 'danger')
+    return redirect(url_for('admin_login'))
+
+@app.route('/summary', methods = ['GET'])
+def user_summary():
+    if 'user_id' in session:
+        quizExpired, PerformanceJSON = utils.userQuizPerformance(session['user_id'], today)
+        participated, ParticipationJSON = utils.userQuizParticipation(session['user_id'])
+        return render_template('users/summary_dashboard.html',
+                               quizExpired = quizExpired,
+                               participated = participated,
+                               PerformanceJSON = PerformanceJSON,
+                               ParticipationJSON = ParticipationJSON)
+    flash('Login to access the page', 'danger')
+    return redirect(url_for('login'))
+
+@app.route('/admin/summary', methods = ['GET'])
+def admin_summary():
+    if 'admin_id' in session:
+        all_title = 'User Engagement : Subjects → Chapters → User<br><sub>Based on Ongoing & Expired Quizzes</sub>'
+        dated_title = 'User Engagement : Subjects → Chapters → User<br><sub>Only based on Expired Quizzes</sub>'
+        perform_title = 'Quiz Performance: Average Scores by Chapter<br><sub>Based on Ongoing & Expired Quizzes</sub>'
+        allExists, All_EngagementJSON = utils.Engagement(all_title, dated = False)
+        datedExists, Dated_EngagementJSON = utils.Engagement(dated_title, dated = today)
+        performExists, PerformanceJSON = utils.QuizPerformance(perform_title)
+        return render_template('admin/summary_dashboard.html',
+                               allExists = allExists,
+                               datedExists = datedExists,
+                               All_EngagementJSON = All_EngagementJSON,
+                               Dated_EngagementJSON = Dated_EngagementJSON,
+                               performExists = performExists,
+                               PerformanceJSON = PerformanceJSON)
     flash('Login to access the page', 'danger')
     return redirect(url_for('admin_login'))

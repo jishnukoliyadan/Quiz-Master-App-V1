@@ -15,4 +15,7 @@ bcrypt = Bcrypt(app)
 db.init_app(app)
 app.app_context().push()
 
+from .db_seed import seed_db
+seed_db()
+
 from quizapp import routes
