@@ -1,0 +1,32 @@
+{% extends "users/base_dashboard.html" %}
+{% block section %}
+
+<section class="container text-center">
+    {% if quizExpired == True %}
+    <div class="mt-5" id="performancePlot"></div>
+    {% endif %}
+
+    {% if participated == True %}
+    <div class="mt-5" id="participationPlot"></div>
+    {% endif %}
+
+    {% if quizExpired == False and participated == False %}
+    <div class="text-center" style="padding: 25lvh;">
+        <div class="card card-body border border-danger-subtle">
+            <h6 class="card-title">Participate atleast in <strong>One</strong> quiz to generate summary chart.</h6>
+        </div>
+    </div>
+    {% endif %}
+</section>
+
+{# https://www.geeksforgeeks.org/create-a-bar-chart-from-a-dataframe-with-plotly-and-flask/ #}
+
+<script src="https://cdn.plot.ly/plotly-3.0.0.min.js" charset="utf-8"></script>
+<script type='text/javascript'>
+    var PerformanceGraph = {{ PerformanceJSON | safe }};
+    var ParticipationGraph = {{ ParticipationJSON | safe }};
+    Plotly.newPlot('participationPlot', ParticipationGraph);
+    Plotly.newPlot('performancePlot', PerformanceGraph);
+</script>
+
+{% endblock %}

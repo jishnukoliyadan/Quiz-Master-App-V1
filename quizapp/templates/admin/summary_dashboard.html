@@ -1,0 +1,58 @@
+{% extends "admin/base_dashboard.html" %}
+{% block section %}
+
+{% if allExists == True %}
+<section class="container text-center mt-3">
+    <div id="DistributionPlot"></div>
+    <div id="PerformancePlot"></div>
+    <hr>
+</section>
+<section class="container text-center mt-4">
+    <div class="btn-group btn-group-sm" role="group" style="gap: 5px;">
+        <input type="radio" class="btn-check" name="options-outlined" id="all-quizzes" autocomplete="off"
+            onchange="toggleCharts()" checked>
+        <label class="btn btn-outline-success rounded" for="all-quizzes">Show All Quizzes</label>
+        <input type="radio" class="btn-check" name="options-outlined" id="expired-only" autocomplete="off"
+            onchange="toggleCharts()">
+        <label class="btn btn-outline-danger rounded" for="expired-only">Expired Only</label>
+    </div>
+    <div id="AllEngagemenPlot"></div>
+    <div id="DatedEngagemenPlot" style="display: none;"></div>
+</section>
+{% else %}
+<section class="container text-center">
+    <div class="text-center" style="padding: 25lvh;">
+        <div class="card card-body border border-danger-subtle">
+            <h6 class="card-title">Users haven't participated in any quizzes to generate summary chart.</h6>
+        </div>
+    </div>
+</section>
+{% endif %}
+{# https://www.geeksforgeeks.org/create-a-bar-chart-from-a-dataframe-with-plotly-and-flask/ #}
+<script src="https://cdn.plot.ly/plotly-3.0.0.min.js" charset="utf-8"></script>
+<script type='text/javascript'>
+    const AllEngagemenGraph = {{ All_EngagementJSON | safe }};
+    const DatedEngagemenGraph = {{ Dated_EngagementJSON | safe }};
+    const PerformanceGraph = {{ PerformanceJSON | safe }};
+    Plotly.newPlot('AllEngagemenPlot', AllEngagemenGraph);
+    Plotly.newPlot('DatedEngagemenPlot', DatedEngagemenGraph);
+    Plotly.newPlot('PerformancePlot', PerformanceGraph);
+
+    // https://stackoverflow.com/a/44565936
+    function toggleCharts() {
+        const ShowAll = document.getElementById('all-quizzes').checked;
+        const AllChart = document.getElementById('AllEngagemenPlot')
+        const ExpiredChart = document.getElementById('DatedEngagemenPlot')
+        if (ShowAll === true) {
+            AllChart.style.display = 'block';
+            ExpiredChart.style.display = 'none';
+            Plotly.Plots.resize(AllChart); // https://stackoverflow.com/a/71533871
+        } else {
+            AllChart.style.display = 'none';
+            ExpiredChart.style.display = 'block';
+            Plotly.Plots.resize(ExpiredChart);
+        }
+    }
+</script>
+
+{% endblock %}
