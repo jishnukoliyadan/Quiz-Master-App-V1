@@ -1,14 +1,15 @@
-from flask import request, render_template
-from flask import redirect, flash, url_for
-from flask import session
-from quizapp import app, db
-from quizapp.models import Scores, User, Quiz, Questions
-from quizapp.models import Chapter, Subject
 from datetime import date
 from sqlalchemy import or_
-from quizapp import utils
+from flask import session
+from flask import request, render_template
+from flask import redirect, flash, url_for
+from quizapp import app, db, utils
+from quizapp.models import User, Chapter, Subject
+from quizapp.models import Scores, Quiz, Questions
 
 today = date.today()
+
+# ======================================  HOME ROUTES  ====================================== #
 
 @app.route('/')
 def home():
@@ -22,8 +23,9 @@ def register():
     session.pop('user_id', None)
     if request.method == 'POST':
         username = request.form.get('username')
+        admin_username = User.query.filter(User.username == username, User.role == 'Admin').first()
         user_exists = User.query.filter(User.username == username, User.role == 'User').first()
-        if user_exists:
+        if admin_username or user_exists:
             flash('Username already exists!', 'danger')
             return redirect(url_for('register'))
         password = request.form.get('password')
@@ -78,6 +80,8 @@ def logout():
     flash('Logged out successfully', 'success')
     return redirect(url_for('home'))
 
+# ======================================  ADMIN ROUTES  ====================================== #
+
 @app.route('/admin/home')
 def admin_dashboard():
     session.pop('user_id', None)
@@ -87,17 +91,73 @@ def admin_dashboard():
     flash('Login to access the page', 'danger')
     return redirect(url_for('admin_login'))
 
-@app.route('/home')
-def user_dashboard():
-    session.pop('admin_id', None)
-    if 'user_id' in session:
-        # https://www.janbasktraining.com/community/sql-server/how-can-i-use-order_by-of-sqlalchemy-to-retrieve-data-in-descending-and-ascending-order
-        quizzes = Quiz.query.join(Quiz.question).group_by(Quiz.quizid)
-        coming_quizzes = quizzes.filter(Quiz.dateofquiz > today).order_by(Quiz.dateofquiz.asc())
-        expired_quizzes = quizzes.filter(Quiz.dateofquiz < today).order_by(Quiz.dateofquiz.desc())
-        return render_template('users/dashboard.html', coming_quizzes = coming_quizzes, expired_quizzes = expired_quizzes)
+@app.route('/admin/quiz', methods = ['GET', 'POST'])
+def manage_quizzes():
+    if 'admin_id' in session:
+        quizz = Quiz.query.all()
+        return render_template('admin/quiz.html', quizzes=quizz )
+    flash('Login to access the page', 'danger')
+    return redirect(url_for('admin_login'))
+
+@app.route('/admin/users')
+def view_users():
+    if 'admin_id' in session:
+        users = User.query.filter(User.role == 'User')
+        return render_template('admin/view_users.html', users = users)
+    flash('Login to access the page', 'danger')
+    return redirect(url_for('admin_login'))
+
+@app.route('/admin/summary', methods = ['GET'])
+def admin_summary():
+    if 'admin_id' in session:
+        all_title = 'User Engagement : Subjects → Chapters → User<br><sub>Based on Ongoing & Expired Quizzes</sub>'
+        dated_title = 'User Engagement : Subjects → Chapters → User<br><sub>Only based on Expired Quizzes</sub>'
+        perform_title = 'Quiz Performance: Average Scores by Chapter<br><sub>Based on Ongoing & Expired Quizzes</sub>'
+        allExists, All_EngagementJSON = utils.Engagement(all_title, dated = False)
+        datedExists, Dated_EngagementJSON = utils.Engagement(dated_title, dated = today)
+        performExists, PerformanceJSON = utils.QuizPerformance(perform_title)
+        return render_template('admin/summary_dashboard.html',
+                               allExists = allExists,
+                               datedExists = datedExists,
+                               All_EngagementJSON = All_EngagementJSON,
+                               Dated_EngagementJSON = Dated_EngagementJSON,
+                               performExists = performExists,
+                               PerformanceJSON = PerformanceJSON)
+    flash('Login to access the page', 'danger')
+    return redirect(url_for('admin_login'))
+
+@app.route('/admin/search', methods = ['GET', 'POST'])
+def admin_search():
+    if 'admin_id' in session:
+        length_= 0
+        userQuery, subjectQuery, chapterQuery, quizQuery, questionQuery = [], [], [], [], []
+        if request.method == 'POST':
+            search_term = request.form.get('search')
+            search_pattern = f"%{search_term}%"
+            # https://stackoverflow.com/a/7942571
+            userQuery = User.query.filter(or_(User.username.ilike(search_pattern),
+                                              User.fullname.ilike(search_pattern),
+                                              User.qualification.ilike(search_pattern))).all()
+            subjectQuery = Subject.query.filter(or_(Subject.sname.ilike(search_pattern),
+                                                    Subject.description.ilike(search_pattern))).all()
+            chapterQuery = Chapter.query.filter(or_(Chapter.cname.ilike(search_pattern),
+                                                    Chapter.description.ilike(search_pattern))).all()
+            quizQuery = Quiz.query.filter(or_(Quiz.qname.ilike(search_pattern),
+                                              Quiz.remarks.ilike(search_pattern))).all()
+            questionQuery = Questions.query.filter(Questions.question_statement.ilike(search_pattern)).all()
+
+            length_ = len(userQuery + subjectQuery + chapterQuery + quizQuery + questionQuery)
+            return render_template('admin/search.html', length_= length_, search_term = search_term,
+                                   userQuery = userQuery, subjectQuery = subjectQuery,
+                                   chapterQuery = chapterQuery, quizQuery = quizQuery,
+                                   questionQuery = questionQuery)
+        return render_template('admin/search.html', length_ = length_, userQuery = userQuery,
+                                    subjectQuery = subjectQuery, chapterQuery = chapterQuery,
+                                    quizQuery = quizQuery, questionQuery = questionQuery)
     flash('Login to access the page', 'danger')
     return redirect(url_for('login'))
+
+# =====================================  Subject Related  ===================================== #
 
 @app.route('/admin/add_subject', methods = ['GET', 'POST'])
 def add_subject():
@@ -118,120 +178,12 @@ def add_subject():
         return render_template('admin/add_subject.html')
     flash('Login to access the page', 'danger')
     return redirect(url_for('admin_login'))
-    
-@app.route('/admin/add_chapter/<int:sid>', methods = ['GET', 'POST'])
-def add_chapter(sid):
-    if 'admin_id' in session:
-        if request.method == 'POST':
-            cname = request.form.get('name')
-            description = request.form.get('description')
-            chapter = Chapter(cname = cname, description = description, subjectid = sid)
-            db.session.add(chapter)
-            db.session.commit()
-            flash(f'Chapter added to {chapter.subject.sname}!', 'success')
-            return redirect(url_for('admin_dashboard'))
-        return render_template('admin/add_chapter.html')
-    flash('Login to access the page', 'danger')
-    return redirect(url_for('admin_login'))
 
-@app.route('/admin/delete_chapter/<int:cid>', methods = ['POST'])
-def delete_chapter(cid):
-    if 'admin_id' in session:
-        chapter = Chapter.query.get_or_404(cid)
-        db.session.delete(chapter)
-        db.session.commit()
-        flash('Chapter deleted!', 'success')
-        return redirect(url_for('admin_dashboard'))
-    flash('Login to access the page', 'danger')
-    return redirect(url_for('admin_login'))
-
-@app.route('/admin/quiz', methods = ['GET', 'POST'])
-def manage_quizzes():
-    if 'admin_id' in session:
-        quizz = Quiz.query.all()
-        return render_template('admin/quiz.html', quizzes=quizz )
-    flash('Login to access the page', 'danger')
-    return redirect(url_for('admin_login'))
-
-@app.route('/admin/add_question/<int:qid>', methods = ['GET', 'POST'])
-def add_question(qid):
-    if 'admin_id' in session:
-        quiz = Quiz.query.filter(Quiz.quizid == qid).first()
-        if request.method == 'POST':
-            q_statement = request.form.get('q_statement')
-            question_exists = Questions.query.filter(Questions.quizid == qid, Questions.question_statement.ilike(f'%{q_statement}%')).first()
-            if question_exists:
-                flash(f'Question exists in {quiz.qname}!', 'danger')
-                return redirect(url_for('manage_quizzes'))
-            question = Questions(**{'question_statement' : q_statement,
-                                    'option_a' : request.form.get('option_1'),
-                                    'option_b' : request.form.get('option_2'),
-                                    'option_c' : request.form.get('option_3'),
-                                    'option_d' : request.form.get('option_4'),
-                                    'correct_option' : int(request.form.get('correctOption')),
-                                    'quizid' : quiz.quizid})
-            db.session.add(question)
-            db.session.commit()
-            flash(f'New question added to {quiz.qname}!', 'success')
-            return redirect(url_for('manage_quizzes'))
-        return render_template('admin/add_question.html', quiz = quiz)
-    flash('Login to access the page', 'danger')
-    return redirect(url_for('admin_login'))
-
-
-@app.route('/admin/delete_question/<int:qid>', methods = ['POST'])
-def delete_question(qid):
-    if 'admin_id' in session:
-        question = Questions.query.get_or_404(qid)
-        qname = question.quiz.qname
-        db.session.delete(question)
-        db.session.commit()
-        flash(f'Deleted question from {qname}!', 'success')
-        return redirect(url_for('manage_quizzes'))
-    flash('Login to access the page', 'danger')
-    return redirect(url_for('admin_login'))
-
-@app.route('/admin/delete_subject/<int:sid>', methods = ['POST'])
-def delete_subject(sid):
+@app.route('/admin/view_subject/<int:sid>', methods = ['GET', 'POST'])
+def view_subject(sid):
     if 'admin_id' in session:
         subject = Subject.query.get_or_404(sid)
-        sname = subject.sname
-        db.session.delete(subject)
-        db.session.commit()
-        flash(f'Deleted subject {sname}!', 'success')
-        return redirect(url_for('admin_dashboard'))
-    flash('Login to access the page', 'danger')
-    return redirect(url_for('admin_login'))
-
-@app.route('/admin/edit_question/<int:qid>', methods = ['GET', 'POST'])
-def edit_question(qid):
-    if 'admin_id' in session:
-        question = Questions.query.filter(Questions.qid == qid).first()
-        if request.method == 'POST':
-            update_data = {'question_statement' : request.form.get('q_statement'),
-                           'option_a' : request.form.get('option_1'),
-                           'option_b' : request.form.get('option_2'),
-                           'option_c' : request.form.get('option_3'),
-                           'option_d' : request.form.get('option_4'),
-                           'correct_option' : int(request.form.get('correctOption')),
-                           'quizid' : question.quiz.quizid}
-            
-            # https://medium.com/@s.azad4/modifying-python-objects-within-the-sqlalchemy-framework-7b6c8dd71ab3
-            for key, value in update_data.items():
-                setattr(question, key, value)
-            db.session.commit()
-
-            flash(f'Question Updated!', 'success')
-            return redirect(url_for('view_question', qid = question.qid))
-        return render_template('admin/edit_question.html', question = question)
-    flash('Login to access the page', 'danger')
-    return redirect(url_for('admin_login'))
-
-@app.route('/admin/view_question/<int:qid>', methods = ['GET', 'POST'])
-def view_question(qid):
-    if 'admin_id' in session:
-        question = Questions.query.get_or_404(qid)
-        return render_template('admin/view_question.html', question = question)
+        return render_template('admin/view_subject.html', subject = subject)
     flash('Login to access the page', 'danger')
     return redirect(url_for('admin_login'))
 
@@ -251,6 +203,42 @@ def edit_subject(sid):
     flash('Login to access the page', 'danger')
     return redirect(url_for('admin_login'))
 
+@app.route('/admin/delete_subject/<int:sid>', methods = ['POST'])
+def delete_subject(sid):
+    if 'admin_id' in session:
+        subject = Subject.query.get_or_404(sid)
+        sname = subject.sname
+        db.session.delete(subject)
+        db.session.commit()
+        flash(f'Deleted subject {sname}!', 'success')
+        return redirect(url_for('admin_dashboard'))
+    flash('Login to access the page', 'danger')
+    return redirect(url_for('admin_login'))
+
+# =====================================  Chapter Related  ===================================== #
+
+@app.route('/admin/add_chapter/<int:sid>', methods = ['GET', 'POST'])
+def add_chapter(sid):
+    if 'admin_id' in session:
+        if request.method == 'POST':
+            cname = request.form.get('name')
+            description = request.form.get('description')
+            chapter = Chapter(cname = cname, description = description, subjectid = sid)
+            db.session.add(chapter)
+            db.session.commit()
+            flash(f'Chapter added to {chapter.subject.sname}!', 'success')
+            return redirect(url_for('admin_dashboard'))
+        return render_template('admin/add_chapter.html')
+    flash('Login to access the page', 'danger')
+    return redirect(url_for('admin_login'))
+
+@app.route('/admin/view_chapter/<int:cid>', methods = ['GET', 'POST'])
+def view_chapter(cid):
+    if 'admin_id' in session:
+        chapter = Chapter.query.get_or_404(cid)
+        return render_template('admin/view_chapter.html', chapter = chapter)
+    flash('Login to access the page', 'danger')
+    return redirect(url_for('admin_login'))
 
 @app.route('/admin/edit_chapter/<int:cid>', methods = ['GET', 'POST'])
 def edit_chapter(cid):
@@ -267,6 +255,19 @@ def edit_chapter(cid):
         return render_template('admin/edit_chapter.html', chapter = chapter)
     flash('Login to access the page', 'danger')
     return redirect(url_for('admin_login'))
+
+@app.route('/admin/delete_chapter/<int:cid>', methods = ['POST'])
+def delete_chapter(cid):
+    if 'admin_id' in session:
+        chapter = Chapter.query.get_or_404(cid)
+        db.session.delete(chapter)
+        db.session.commit()
+        flash('Chapter deleted!', 'success')
+        return redirect(url_for('admin_dashboard'))
+    flash('Login to access the page', 'danger')
+    return redirect(url_for('admin_login'))
+
+# =====================================  Quiz Related  ===================================== #
 
 @app.route('/admin/add_quiz', methods = ['GET', 'POST'])
 def add_quiz():
@@ -328,21 +329,168 @@ def delete_quiz(qid):
     flash('Login to access the page', 'danger')
     return redirect(url_for('admin_login'))
 
-@app.route('/admin/view_subject/<int:sid>', methods = ['GET', 'POST'])
-def view_subject(sid):
+# ====================================  Questions Related  ==================================== #
+
+@app.route('/admin/add_question/<int:qid>', methods = ['GET', 'POST'])
+def add_question(qid):
     if 'admin_id' in session:
-        subject = Subject.query.get_or_404(sid)
-        return render_template('admin/view_subject.html', subject = subject)
+        quiz = Quiz.query.filter(Quiz.quizid == qid).first()
+        if request.method == 'POST':
+            q_statement = request.form.get('q_statement')
+            question_exists = Questions.query.filter(Questions.quizid == qid, Questions.question_statement.ilike(f'%{q_statement}%')).first()
+            if question_exists:
+                flash(f'Question exists in {quiz.qname}!', 'danger')
+                return redirect(url_for('manage_quizzes'))
+            question = Questions(**{'question_statement' : q_statement,
+                                    'option_a' : request.form.get('option_1'),
+                                    'option_b' : request.form.get('option_2'),
+                                    'option_c' : request.form.get('option_3'),
+                                    'option_d' : request.form.get('option_4'),
+                                    'correct_option' : int(request.form.get('correctOption')),
+                                    'quizid' : quiz.quizid})
+            db.session.add(question)
+            db.session.commit()
+            flash(f'New question added to {quiz.qname}!', 'success')
+            return redirect(url_for('manage_quizzes'))
+        return render_template('admin/add_question.html', quiz = quiz)
     flash('Login to access the page', 'danger')
     return redirect(url_for('admin_login'))
 
-@app.route('/admin/view_chapter/<int:cid>', methods = ['GET', 'POST'])
-def view_chapter(cid):
+@app.route('/admin/view_question/<int:qid>', methods = ['GET', 'POST'])
+def view_question(qid):
     if 'admin_id' in session:
-        chapter = Chapter.query.get_or_404(cid)
-        return render_template('admin/view_chapter.html', chapter = chapter)
+        question = Questions.query.get_or_404(qid)
+        return render_template('admin/view_question.html', question = question)
     flash('Login to access the page', 'danger')
     return redirect(url_for('admin_login'))
+
+@app.route('/admin/edit_question/<int:qid>', methods = ['GET', 'POST'])
+def edit_question(qid):
+    if 'admin_id' in session:
+        question = Questions.query.filter(Questions.qid == qid).first()
+        if request.method == 'POST':
+            update_data = {'question_statement' : request.form.get('q_statement'),
+                           'option_a' : request.form.get('option_1'),
+                           'option_b' : request.form.get('option_2'),
+                           'option_c' : request.form.get('option_3'),
+                           'option_d' : request.form.get('option_4'),
+                           'correct_option' : int(request.form.get('correctOption')),
+                           'quizid' : question.quiz.quizid}
+            
+            # https://medium.com/@s.azad4/modifying-python-objects-within-the-sqlalchemy-framework-7b6c8dd71ab3
+            for key, value in update_data.items():
+                setattr(question, key, value)
+            db.session.commit()
+
+            flash(f'Question Updated!', 'success')
+            return redirect(url_for('view_question', qid = question.qid))
+        return render_template('admin/edit_question.html', question = question)
+    flash('Login to access the page', 'danger')
+    return redirect(url_for('admin_login'))
+
+@app.route('/admin/delete_question/<int:qid>', methods = ['POST'])
+def delete_question(qid):
+    if 'admin_id' in session:
+        question = Questions.query.get_or_404(qid)
+        qname = question.quiz.qname
+        db.session.delete(question)
+        db.session.commit()
+        flash(f'Deleted question from {qname}!', 'success')
+        return redirect(url_for('manage_quizzes'))
+    flash('Login to access the page', 'danger')
+    return redirect(url_for('admin_login'))
+
+# ======================================  USER ROUTES  ====================================== #
+
+@app.route('/home')
+def user_dashboard():
+    session.pop('admin_id', None)
+    if 'user_id' in session:
+        # https://www.janbasktraining.com/community/sql-server/how-can-i-use-order_by-of-sqlalchemy-to-retrieve-data-in-descending-and-ascending-order
+        quizzes = Quiz.query.join(Quiz.question).group_by(Quiz.quizid)
+        coming_quizzes = quizzes.filter(Quiz.dateofquiz > today).order_by(Quiz.dateofquiz.asc())
+        expired_quizzes = quizzes.filter(Quiz.dateofquiz < today).order_by(Quiz.dateofquiz.desc())
+        return render_template('users/dashboard.html', coming_quizzes = coming_quizzes, expired_quizzes = expired_quizzes)
+    flash('Login to access the page', 'danger')
+    return redirect(url_for('login'))
+
+@app.route('/scores', methods = ['GET', 'POST'])
+def scores_dashboard():
+    if 'user_id' in session:
+        ongoing_quizzes = Quiz.query.filter(Quiz.dateofquiz > today).order_by(Quiz.dateofquiz.asc())
+        expired_quizzes = Quiz.query.filter(Quiz.dateofquiz < today).order_by(Quiz.dateofquiz.asc())
+        scores = Scores.query.join(Scores.quiz)\
+                                .filter(Scores.userid == session['user_id'], Quiz.dateofquiz < today)\
+                                .order_by(Scores.time_stamp_attempt.desc())
+        expired_quiz_submitted, attempted_quiz_ids, attempt_count = list(), set(), dict()
+        for score in scores:
+            if score.quizid not in attempted_quiz_ids:
+                expired_quiz_submitted.append(score)
+                attempted_quiz_ids.add(score.quizid)
+            try: attempt_count[score.quizid] += 1
+            except: attempt_count[score.quizid] = 1
+        # https://www.w3schools.com/python/ref_list_sort.asp
+        expired_quiz_submitted.sort(reverse = False, key = lambda score : score.quiz.dateofquiz)
+        unattempted_quizzes = [quiz for quiz in expired_quizzes if quiz.quizid not in attempted_quiz_ids]
+        unattempted_quizzes.sort(reverse = True, key = lambda quiz : quiz.dateofquiz)
+        wholeQuizAttempts = utils.WholeQuizAttemptCount(session['user_id'])
+        return render_template('users/score_dashboard.html', ongoing_quizzes = ongoing_quizzes,
+                               expired_quiz_submitted = expired_quiz_submitted,
+                               unattempted_quizzes = unattempted_quizzes,
+                               attempt_count = attempt_count,
+                               wholeQuizAttempts = wholeQuizAttempts)
+    flash('Login to access the page', 'danger')
+    return redirect(url_for('login'))
+    
+@app.route('/summary', methods = ['GET'])
+def user_summary():
+    if 'user_id' in session:
+        quizExpired, PerformanceJSON = utils.userQuizPerformance(session['user_id'], today)
+        participated, ParticipationJSON = utils.userQuizParticipation(session['user_id'])
+        return render_template('users/summary_dashboard.html',
+                               quizExpired = quizExpired,
+                               participated = participated,
+                               PerformanceJSON = PerformanceJSON,
+                               ParticipationJSON = ParticipationJSON)
+    flash('Login to access the page', 'danger')
+    return redirect(url_for('login'))
+
+@app.route('/search', methods = ['GET', 'POST'])
+def user_search():
+    if 'user_id' in session:
+        length_= 0
+        subjectQuery, chapterQuery, quizQuery = [], [], []
+        if request.method == 'POST':
+            search_term = request.form.get('search')
+            search_pattern = f"%{search_term}%"
+            # https://stackoverflow.com/a/7942571
+            subjectQuery = Subject.query.filter(or_(Subject.sname.ilike(search_pattern),
+                                                    Subject.description.ilike(search_pattern))).all()
+            chapterQuery = Chapter.query.filter(or_(Chapter.cname.ilike(search_pattern),
+                                                    Chapter.description.ilike(search_pattern))).all()
+            quizQuery = Quiz.query.filter(or_(Quiz.qname.ilike(search_pattern),
+                                              Quiz.remarks.ilike(search_pattern))).all()
+            length_ = len(subjectQuery + chapterQuery + quizQuery)
+            return render_template('users/search.html', length_= length_, search_term = search_term,
+                                   subjectQuery = subjectQuery,
+                                   chapterQuery = chapterQuery, quizQuery = quizQuery)
+        return render_template('users/search.html', length_ = length_,
+                                    subjectQuery = subjectQuery, chapterQuery = chapterQuery,
+                                    quizQuery = quizQuery)
+    flash('Login to access the page', 'danger')
+    return redirect(url_for('login'))
+
+@app.route('/profile', methods = ['GET'])
+def user_profile():
+    if 'user_id' in session:
+        user = User.query.get_or_404(session['user_id'])
+        attemptedQuizzes = Quiz.query.join(Scores.quiz).filter(Scores.userid == session['user_id'])
+        return render_template('users/user_profile.html', user = user,
+                               attemptedQuizzes = attemptedQuizzes)
+    flash('Login to access the page', 'danger')
+    return redirect(url_for('login'))
+
+# ===================================  Quiz Attempt ROUTES  =================================== #
 
 @app.route('/quiz_details/<int:qid>', methods = ['GET', 'POST'])
 def quiz_details(qid):
@@ -380,43 +528,7 @@ def quiz_attempt(qid):
     flash('Login to access the page', 'danger')
     return redirect(url_for('login'))
 
-@app.route('/scores', methods = ['GET', 'POST'])
-def scores_dashboard():
-    if 'user_id' in session:
-        ongoing_quizzes = Quiz.query.filter(Quiz.dateofquiz > today).order_by(Quiz.dateofquiz.asc())
-        expired_quizzes = Quiz.query.filter(Quiz.dateofquiz < today).order_by(Quiz.dateofquiz.asc())
-        scores = Scores.query.join(Scores.quiz)\
-                                .filter(Scores.userid == session['user_id'], Quiz.dateofquiz < today)\
-                                .order_by(Scores.time_stamp_attempt.desc())
-        expired_quiz_submitted, attempted_quiz_ids, attempt_count = list(), set(), dict()
-        for score in scores:
-            if score.quizid not in attempted_quiz_ids:
-                expired_quiz_submitted.append(score)
-                attempted_quiz_ids.add(score.quizid)
-            try: attempt_count[score.quizid] += 1
-            except: attempt_count[score.quizid] = 1
-        # https://www.w3schools.com/python/ref_list_sort.asp
-        expired_quiz_submitted.sort(reverse = False, key = lambda score : score.quiz.dateofquiz)
-        unattempted_quizzes = [quiz for quiz in expired_quizzes if quiz.quizid not in attempted_quiz_ids]
-        unattempted_quizzes.sort(reverse = True, key = lambda quiz : quiz.dateofquiz)
-
-        return render_template('users/score_dashboard.html', ongoing_quizzes = ongoing_quizzes,
-                               expired_quiz_submitted = expired_quiz_submitted,
-                               unattempted_quizzes = unattempted_quizzes,
-                               attempt_count = attempt_count)
-    flash('Login to access the page', 'danger')
-    return redirect(url_for('login'))
-
-@app.route('/solutions/<int:qid>', methods = ['GET', 'POST'])
-def view_solutions(qid):
-    if 'user_id' in session:
-        quiz = Quiz.query.filter(Quiz.dateofquiz < today, Quiz.quizid == qid).first()
-        if not quiz:
-            flash('Selected Quiz is still on', 'info')
-            return redirect(url_for('scores_dashboard'))
-        return render_template('users/view_solutions.html', quiz = quiz)
-    flash('Login to access the page', 'danger')
-    return redirect(url_for('login'))
+# ===================================  Quiz Results ROUTES  =================================== #
 
 @app.route('/results/<int:sid>', methods = ['GET', 'POST'])
 def view_result(sid):
@@ -433,98 +545,13 @@ def view_result(sid):
     flash('Login to access the page', 'danger')
     return redirect(url_for('login'))
 
-@app.route('/admin/search', methods = ['GET', 'POST'])
-def admin_search():
-    if 'admin_id' in session:
-        length_= 0
-        userQuery, subjectQuery, chapterQuery, quizQuery, questionQuery = [], [], [], [], []
-        if request.method == 'POST':
-            search_term = request.form.get('search')
-            search_pattern = f"%{search_term}%"
-            # https://stackoverflow.com/a/7942571
-            userQuery = User.query.filter(or_(User.username.ilike(search_pattern),
-                                              User.fullname.ilike(search_pattern),
-                                              User.qualification.ilike(search_pattern))).all()
-            subjectQuery = Subject.query.filter(or_(Subject.sname.ilike(search_pattern),
-                                                    Subject.description.ilike(search_pattern))).all()
-            chapterQuery = Chapter.query.filter(or_(Chapter.cname.ilike(search_pattern),
-                                                    Chapter.description.ilike(search_pattern))).all()
-            quizQuery = Quiz.query.filter(or_(Quiz.qname.ilike(search_pattern),
-                                              Quiz.remarks.ilike(search_pattern))).all()
-            questionQuery = Questions.query.filter(Questions.question_statement.ilike(search_pattern)).all()
-
-            length_ = len(userQuery + subjectQuery + chapterQuery + quizQuery + questionQuery)
-            return render_template('admin/search.html', length_= length_, search_term = search_term,
-                                   userQuery = userQuery, subjectQuery = subjectQuery,
-                                   chapterQuery = chapterQuery, quizQuery = quizQuery,
-                                   questionQuery = questionQuery)
-        return render_template('admin/search.html', length_ = length_, userQuery = userQuery,
-                                    subjectQuery = subjectQuery, chapterQuery = chapterQuery,
-                                    quizQuery = quizQuery, questionQuery = questionQuery)
-    flash('Login to access the page', 'danger')
-    return redirect(url_for('login'))
-
-@app.route('/search', methods = ['GET', 'POST'])
-def user_search():
+@app.route('/solutions/<int:qid>', methods = ['GET', 'POST'])
+def view_solutions(qid):
     if 'user_id' in session:
-        length_= 0
-        subjectQuery, chapterQuery, quizQuery = [], [], []
-        if request.method == 'POST':
-            search_term = request.form.get('search')
-            search_pattern = f"%{search_term}%"
-            # https://stackoverflow.com/a/7942571
-            subjectQuery = Subject.query.filter(or_(Subject.sname.ilike(search_pattern),
-                                                    Subject.description.ilike(search_pattern))).all()
-            chapterQuery = Chapter.query.filter(or_(Chapter.cname.ilike(search_pattern),
-                                                    Chapter.description.ilike(search_pattern))).all()
-            quizQuery = Quiz.query.filter(or_(Quiz.qname.ilike(search_pattern),
-                                              Quiz.remarks.ilike(search_pattern))).all()
-            length_ = len(subjectQuery + chapterQuery + quizQuery)
-            return render_template('users/search.html', length_= length_, search_term = search_term,
-                                   subjectQuery = subjectQuery,
-                                   chapterQuery = chapterQuery, quizQuery = quizQuery)
-        return render_template('users/search.html', length_ = length_,
-                                    subjectQuery = subjectQuery, chapterQuery = chapterQuery,
-                                    quizQuery = quizQuery)
+        quiz = Quiz.query.filter(Quiz.dateofquiz < today, Quiz.quizid == qid).first()
+        if not quiz:
+            flash('Selected Quiz is still on', 'info')
+            return redirect(url_for('scores_dashboard'))
+        return render_template('users/view_solutions.html', quiz = quiz)
     flash('Login to access the page', 'danger')
     return redirect(url_for('login'))
-
-@app.route('/admin/users')
-def view_users():
-    if 'admin_id' in session:
-        users = User.query.filter(User.role == 'User')
-        return render_template('admin/view_users.html', users = users)
-    flash('Login to access the page', 'danger')
-    return redirect(url_for('admin_login'))
-
-@app.route('/summary', methods = ['GET'])
-def user_summary():
-    if 'user_id' in session:
-        quizExpired, PerformanceJSON = utils.userQuizPerformance(session['user_id'], today)
-        participated, ParticipationJSON = utils.userQuizParticipation(session['user_id'])
-        return render_template('users/summary_dashboard.html',
-                               quizExpired = quizExpired,
-                               participated = participated,
-                               PerformanceJSON = PerformanceJSON,
-                               ParticipationJSON = ParticipationJSON)
-    flash('Login to access the page', 'danger')
-    return redirect(url_for('login'))
-
-@app.route('/admin/summary', methods = ['GET'])
-def admin_summary():
-    if 'admin_id' in session:
-        all_title = 'User Engagement : Subjects → Chapters → User<br><sub>Based on Ongoing & Expired Quizzes</sub>'
-        dated_title = 'User Engagement : Subjects → Chapters → User<br><sub>Only based on Expired Quizzes</sub>'
-        perform_title = 'Quiz Performance: Average Scores by Chapter<br><sub>Based on Ongoing & Expired Quizzes</sub>'
-        allExists, All_EngagementJSON = utils.Engagement(all_title, dated = False)
-        datedExists, Dated_EngagementJSON = utils.Engagement(dated_title, dated = today)
-        performExists, PerformanceJSON = utils.QuizPerformance(perform_title)
-        return render_template('admin/summary_dashboard.html',
-                               allExists = allExists,
-                               datedExists = datedExists,
-                               All_EngagementJSON = All_EngagementJSON,
-                               Dated_EngagementJSON = Dated_EngagementJSON,
-                               performExists = performExists,
-                               PerformanceJSON = PerformanceJSON)
-    flash('Login to access the page', 'danger')
-    return redirect(url_for('admin_login'))

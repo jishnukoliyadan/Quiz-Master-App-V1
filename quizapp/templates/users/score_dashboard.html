@@ -13,9 +13,10 @@
                         <th>Quiz Name</th>
                         <th>Subject Name</th>
                         <th>Chapter Name</th>
-                        <th>No.of.Questions</th>
+                        <th>#Questions</th>
                         <th>Date</th>
                         <th>Duration(HH:MM)</th>
+                        <th>#Attempts</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -36,6 +37,7 @@
                         {# https://stackoverflow.com/a/58233733 #}
                         {# https://stackoverflow.com/a/32087396 #}
                         <td>{{ "%02d:%02d" % (hour, minute) }}</td>
+                        <td>{{ wholeQuizAttempts.get(quiz.quizid, 0) }}</td>
                         <td>
                             <a href="{{url_for('quiz_details', qid = quiz.quizid) }}"
                                 class="btn btn-outline-info btn-sm">Details</a>
@@ -63,9 +65,9 @@
                         <th>Quiz Name</th>
                         <th>Chapter Name</th>
                         <th>Subject Name</th>
-                        <th>No.of.Questions</th>
-                        <th>No.of.Attempts</th>
-                        <th>Quiz DeadLine</th>
+                        <th>#Questions</th>
+                        <th>#Attempts</th>
+                        <th>Final Score</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -78,7 +80,7 @@
                         <td>{{ score.quiz.chapter.subject.sname }}</td>
                         <td>{{ score.quiz.question | length }}</td>
                         <td>{{ attempt_count.get(score.quizid, 0) }}</td>
-                        <td>{{ score.quiz.dateofquiz.strftime('%Y-%m-%d') }}</td>
+                        <td>{{ score.totalscore }} / {{ score.quiz.question | length }}</td>
                         <td>
                             <a href="{{url_for('view_result', sid = score.scoreid) }}"
                                 class="btn btn-outline-success btn-sm">View Result</a>

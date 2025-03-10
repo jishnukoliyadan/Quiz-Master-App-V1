@@ -10,6 +10,28 @@
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+    <!-- https://www.w3schools.com/html/tryit.asp?filename=tryhtml_images_background8 -->
+    <!-- https://www.geeksforgeeks.org/how-to-place-background-image-using-before-pseudo-selectors-in-css/ -->
+    <!-- Image Credits : https://unsplash.com/@nguyendhn -->
+    <style>
+        body {
+            background-image: url("{{ url_for('static', filename = 'images/nguyen-dang-hoang-nhu-cbEvoHbJnIE-unsplash.jpg')}}");
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-size: 100% 100%;
+        }
+        body::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: inherit;
+            background-size: cover;
+            filter: blur(5px);
+            z-index: -1;
+        }
+    </style>
 </head>
 
 <body>

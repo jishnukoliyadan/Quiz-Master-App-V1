@@ -71,3 +71,12 @@ def QuizPerformance(perform_title):
                                       'Chapter: %{x}<br>Subject: %{customdata[1]}<br>Avg.Score: %{y}')
     fig.update_layout(xaxis_title = 'Chapters', yaxis_title = 'Average Score', legend = {'title' : 'Quiz Name'})
     return len(df) > 0, json.dumps(fig, cls = PlotlyJSONEncoder)
+
+def WholeQuizAttemptCount(user_id):
+    print(user_id)
+    whole_attempt_count = dict()
+    wholeQuizAttempt = Scores.query.filter(Scores.userid == user_id)
+    for score in wholeQuizAttempt:
+        try: whole_attempt_count[score.quizid] += 1
+        except: whole_attempt_count[score.quizid] = 1
+    return whole_attempt_count
