@@ -11,14 +11,18 @@ This is a Flask-based Quiz Application that allows users to take quizzes, track 
 - **User Roles**
   - Admin : Create/manage subjects, chapters, quizzes, and questions
   - Users : Attempt quizzes, view scores/history
+
 - **Quiz Management**
   - Time-limited quizzes with multiple questions
   - Automatic scoring system
   - Quiz attempt history tracking
+
 - **Subject Hierarchy**
   - Subjects → Chapters → Quizzes → Questions
+
 - **Search Functionality**
   - Unified search across users, subjects, chapters and quizzes
+  
 - **Analytics & Charts**
   - User performance analytics
   - Quiz statistics and participation metrics
@@ -58,23 +62,59 @@ pip install -r requirements.txt  # install dependencies
 #### Option 2 : Using `conda` and `YAML` file
 
 ```bash
+# Remove existing environment if present
+conda env remove -n quizapp  # Skip if its a fresh setup
+
+# Create new environment
 conda env create -f environment.yml
 conda activate quizapp
 ```
 
 ### 3. File Integrity Verification
 
+Published Checksum : `f703c236c9bbfb36ec9c4baee00bab79`
+
 Generate checksum to verify project integrity :
 
 ```bash
-python check.py  # Generates SHA256 hash
+python checksum.py  # Generates SHA256 hash
 ```
 
-### 4. Run the Flask App
+### 4. Handling Checksum Discrepancies (*only if encountered*)
+
+If checksum mismatches due to auto-generated files like `__pycache__` :
+
+1. Stop the running Flask app (`Ctrl + C`)
+
+2. Clean untracked files :
+
+    ```bash
+    git clean -fdX  # Removes untracked files
+    ```
+
+3. Restore original state :
+
+    ```bash
+    git restore .  # Restores all tracked modified files.
+    ```
+
+    **Important :** `git restore .` is irreversible - any uncommitted modifications will be permanently lost!
+
+### 5. Git Notes (Optional)
+
+[Git Notes](https://git-scm.com/docs/git-notes) added as an additional source of information. To view them :
+
+```bash
+git fetch origin "refs/notes/*:refs/notes/*"
+git log --notes=commits  # Shows notes with commit history
+```
+
+### 6. Run the Flask App
 
 ```sh
 python run.py
 ```
+
 The application will be available at `http://localhost:5000/`
 
 ## Tech Stack
@@ -127,6 +167,17 @@ Quiz-Master-App-V1
 │   └── utils.py
 ├── requirements.txt
 └── run.py
+```
+
+## Final Project Submission
+
+Create ZIP file for submission :
+
+```bash
+# From inside Quiz-Master-App-V1 directory aka root directory :
+cd ..
+mv Quiz-Master-App-V1 quiz_master_21f1006877
+zip -r quiz_master_21f1006877.zip quiz_master_21f1006877/
 ```
 
 ## License

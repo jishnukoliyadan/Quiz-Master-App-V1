@@ -192,13 +192,18 @@ def edit_subject(sid):
     if 'admin_id' in session:
         subject = Subject.query.filter(Subject.sid == sid).first()
         if request.method == 'POST':
-            update_data = {'sname' : request.form.get('sname'),
-                           'description' : request.form.get('description')}
-            for key, value in update_data.items():
-                setattr(subject, key, value)
-            db.session.commit()
-            flash(f'Subject {subject.sname} updated!', 'success')
-            return redirect(url_for('view_subject', sid = subject.sid))
+            sname = request.form.get('sname')
+            subject_exists = Subject.query.filter(Subject.sname.ilike(f'%{sname}%')).first()
+            if not subject_exists:
+                update_data = {'sname' : sname,
+                               'description' : request.form.get('description')}
+                for key, value in update_data.items():
+                    setattr(subject, key, value)
+                db.session.commit()
+                flash(f'Subject {subject.sname} updated!', 'success')
+                return redirect(url_for('view_subject', sid = subject.sid))
+            flash('New subject name already exists!', 'danger')
+            return redirect(url_for('admin_dashboard'))
         return render_template('admin/edit_subject.html', subject = subject)
     flash('Login to access the page', 'danger')
     return redirect(url_for('admin_login'))
