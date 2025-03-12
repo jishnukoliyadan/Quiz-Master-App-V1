@@ -1,0 +1,78 @@
+{% extends "users/base_dashboard.html" %}
+{% block section %}
+
+<div class="container card mt-5" style="max-width: 70%;">
+    <form id="add-new" method="POST">
+        <div class="card-body mt-2" style="color: #2273cf;">
+            <div class="card-title text-center mb-3">
+                <h5 style="color: orange;">User Profile</h5>
+            </div>
+            <div class="row mb-3">
+                <label for="sname" class="col-sm-3 col-form-label text-end">User Id</label>
+                <div class="col-sm-8">
+                    <input class="form-control" id="sname" name="sname" value="{{ user.userid }}" disabled>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <label for="cname" class="col-sm-3 col-form-label text-end">username</label>
+                <div class="col-sm-8">
+                    <input class="form-control" id="cname" name="cname" value="{{ user.username }}" disabled>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <label for="description" class="col-sm-3 col-form-label text-end">Full Name</label>
+                <div class="col-sm-8">
+                    <input class="form-control" id="description" name="description" value="{{ user.fullname }}"
+                        disabled>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <label for="description" class="col-sm-3 col-form-label text-end">Qualification</label>
+                <div class="col-sm-8">
+                    <input class="form-control" id="description" name="description" value="{{ user.qualification }}"
+                        disabled>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <label for="description" class="col-sm-3 col-form-label text-end">Date Of Birth</label>
+                <div class="col-sm-8">
+                    <input class="form-control" id="description" name="description" value="{{ user.dob.strftime('%Y-%m-%d') }}" disabled>
+                </div>
+            </div>
+            <div class="row text-center mt-5" style="color: red;">
+                <h6>Attempted Quizzes</h6>
+            </div>
+            <table class="table text-center mt-4">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Quiz Name</th>
+                        <th>Chapter Name</th>
+                        <th>Subject Name</th>
+                        <th>Date of Quiz</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for quiz in attemptedQuizzes %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>
+                            <a href="{{url_for('quiz_details', qid = quiz.quizid) }}" class="text-decoration-none">
+                                {{ quiz.qname }}
+                            </a>
+                        </td>
+                        <td>{{ quiz.chapter.cname }}</td>
+                        <td>{{ quiz.chapter.subject.sname }}</td>
+                        <td>{{ quiz.dateofquiz.strftime('%Y-%m-%d') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </form>
+    <div class="d-flex justify-content-around mt-2 mb-3">
+        <a href="{{ url_for('scores_dashboard') }}" class="btn btn-success me-3">OK</a>
+    </div>
+</div>
+
+{% endblock %}

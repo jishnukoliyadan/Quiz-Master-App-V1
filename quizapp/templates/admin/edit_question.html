@@ -15,7 +15,7 @@
         <div class="row mb-3">
             <label for="q_statement" class="col-sm-3 col-form-label text-end">Question Statement</label>
             <div class="col-sm-8">
-                <textarea class="form-control" name="q_statement" rows="3">{{ question.question_statement }}</textarea>
+                <textarea class="form-control" name="q_statement" rows="3" required>{{ question.question_statement }}</textarea>
             </div>
         </div>
 
@@ -26,25 +26,25 @@
         <div class="row mb-3">
             <label for="option_1" class="col-sm-3 col-form-label text-end">Option 1</label>
             <div class="col-sm-8">
-                <input type="text" class="form-control" id="option_1" name="option_1" value="{{ question.option_a }}">
+                <input type="text" class="form-control" id="option_1" name="option_1" value="{{ question.option_a }}" required>
             </div>
         </div>
         <div class="row mb-3">
             <label for="option_2" class="col-sm-3 col-form-label text-end">Option 2</label>
             <div class="col-sm-8">
-                <input type="text" class="form-control" id="option_2" name="option_2" value="{{ question.option_b }}">
+                <input type="text" class="form-control" id="option_2" name="option_2" value="{{ question.option_b }}" required>
             </div>
         </div>
         <div class="row mb-3">
             <label for="option_3" class="col-sm-3 col-form-label text-end">Option 3</label>
             <div class="col-sm-8">
-                <input type="text" class="form-control" id="option_3" name="option_3" value="{{ question.option_c }}">
+                <input type="text" class="form-control" id="option_3" name="option_3" value="{{ question.option_c }}" required>
             </div>
         </div>
         <div class="row mb-3">
             <label for="option_4" class="col-sm-3 col-form-label text-end">Option 4</label>
             <div class="col-sm-8">
-                <input type="text" class="form-control" id="option_4" name="option_4" value="{{ question.option_d }}">
+                <input type="text" class="form-control" id="option_4" name="option_4" value="{{ question.option_d }}" required>
             </div>
         </div>
         <div class="row mb-3">

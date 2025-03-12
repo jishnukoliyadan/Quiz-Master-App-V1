@@ -16,13 +16,13 @@
         <div class="row mb-3">
             <label for="cname" class="col-sm-3 col-form-label text-end">Chapter Name</label>
             <div class="col-sm-8">
-                <input type="text" class="form-control" id="cname" name="cname" value="{{ chapter.cname }}">
+                <input type="text" class="form-control" id="cname" name="cname" value="{{ chapter.cname }}" required>
             </div>
         </div>
         <div class="row mb-3">
             <label for="description" class="col-sm-3 col-form-label text-end">Description</label>
             <div class="col-sm-8">
-                <textarea class="form-control" name="description" rows="4">{{ chapter.description }}</textarea>
+                <textarea class="form-control" name="description" rows="4" required>{{ chapter.description }}</textarea>
             </div>
         </div>
 

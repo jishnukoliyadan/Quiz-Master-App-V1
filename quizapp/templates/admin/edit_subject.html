@@ -9,13 +9,13 @@
         <div class="row mb-3">
             <label for="sname" class="col-sm-3 col-form-label text-end">Name</label>
             <div class="col-sm-8">
-                <input type="text" class="form-control" id="sname" name="sname" value="{{ subject.sname }}">
+                <input type="text" class="form-control" id="sname" name="sname" value="{{ subject.sname }}" required>
             </div>
         </div>
         <div class="row mb-3">
             <label for="description" class="col-sm-3 col-form-label text-end">Description</label>
             <div class="col-sm-8">
-                <textarea class="form-control" name="description" rows="4">{{ subject.description }}</textarea>
+                <textarea class="form-control" name="description" rows="4" required>{{ subject.description }}</textarea>
             </div>
         </div>
         <div class="row text-center mt-5" style="color: red;">
