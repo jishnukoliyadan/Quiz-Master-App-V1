@@ -137,6 +137,7 @@ Quiz-Master-App-V1
 ├── .env
 ├── .gitignore
 ├── LICENSE
+├── Project-Report-QuizMaster.pdf
 ├── README.md
 ├── checksum.py
 ├── environment.yml
