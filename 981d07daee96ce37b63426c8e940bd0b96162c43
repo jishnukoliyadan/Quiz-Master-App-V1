@@ -1,0 +1,30 @@
+1. For Users, Score dashboard,
+    - Till now users are only allowed to see number of quiz attempts, only after quiz expiry date.
+    - Also User won't be able to distinguish attempted and non-attempted before.
+    - The new feature allows the user to see his/hers quiz attempt count, thus can concentrate on un-attempted quizzes (if want to)
+    - For this, a function added in the utils files to get the quiz and attempt count numbers.
+2. For Users, a user profile window created.
+    - The registration details, excluding password can be seen here.
+    - Also, they can see the different quizzes the attended.
+3. User's Scores dashboard,
+    - Previously users can't see their attempted quiz score on this page, now they can.
+    - Removed 'Date" feature and added 'Final Score'
+    - To get the date of the expired quizzes, 'View Reult' page haves it.
+4. Adde 'checksum.py' in the root directory for checksum validation during viva.
+5. 'required' attribute attaed to aviod errors while filling forms.
+6. Still there is one issue I found,
+    - On editing the Subject name, clicking save tried to add and commit.
+    - If have to rectify the issue we can have a if-else statement to check existancce of the sunject name in the db using 'ilike()' function.
+    - If with this approach, if any error pops-up, we have to check that one too at the time.
+7. 'routes.py',
+    - Might look like a lot of changes in code, but actually NONE.
+    - Only arranged code in different sections for readability.
+    - Admin related routes are arranged at one place, and similar for Users.
+8. Files for environment creation added,
+    - 'environment.yml' for creating conda environment.
+    - 'requirements.txt' for creating environment using Python.
+9. A detailed README file created for smooth execution of the application, from downloading to running it on local.
+10. Added a background image on the front pages, ie on home, login and in registration pages.
+11. Till now, we can try to register a new user using the admin's username,
+    - Results error generation on html, becuse of trying to committing without validating the unique field.
+    - Now, the username is also getting checked against role 'Admin' also to avoid this error.
