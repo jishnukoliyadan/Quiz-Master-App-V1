@@ -1,0 +1,7 @@
+1. New Python file "utils.py" created to store utility functions at one place.
+    - 'to_time_filter' fuction is a custom HTML filter.
+2. Previously, the quiz had time limit, but the user can't see that.
+    - User had to use console to see the remaining time on quiz.
+    - New block introduced in quiz page to show the remaining time.
+3. models.py
+    - Scores.user_input --> the default was empty string, changed into json.dumps([])
