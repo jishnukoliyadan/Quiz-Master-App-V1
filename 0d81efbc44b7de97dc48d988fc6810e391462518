@@ -1,0 +1,9 @@
+Change in Models.py
+    - datetime.utc altered to datetime.now. So it will refer time based on local time zone ie, don't have deal with +5:30hrs anymore.
+    - In Quiz table, modified __repr__ to included quizid and number of questions available in each quiz
+    - In Questions table 'correct_option' was recorded as 'String', since it's numerical value, chnging into 'Interger'
+    - Scores table's 'time_stamp_attempt' was set as 'datetime.now', it's changes into 'datetime.now'.
+Change in routes.py
+    - Previously in 'add_question' it used t check question existance in entire Questions table, which is incorrect. Only have to check existance based on quizid of Questions table, so it got corrected in this commit.
+Change in seed_quiz.py
+    - 'qid' 2's solution was enetered wrong, so corrected it.
