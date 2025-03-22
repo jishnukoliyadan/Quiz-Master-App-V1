@@ -1,0 +1,7 @@
+1. Home URL for Admin and User changed from "dashboard" to "home" only.
+2. "Quiz Name" was missing on users dashboard, which got added now. 'll add missing details, and clean-up might happenn only at last.
+3. Score Dashboard implemented, the quiz details of unattempted one is visible and solutions.
+4. For attempted quiz, it's still not. At present we can only mark the correct answer. Because, till now we not saving user inputs to the questions.
+5. 'll try to capture user inputs and will try to show user marked soltion and qthe correct one for attempted quiz.
+6. Now user can attempt quizzes as many times and final result will bea calculated based on the last quiz attempt.
+7. Also, the user can see his/hers score only after the deadline of the quiz submission date. This is insipred from the Gspace chat, moderator mention we can refer our assignment portel for the referencecs.
