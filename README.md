@@ -32,7 +32,7 @@ This is a Flask-based Quiz Application that allows users to take quizzes, track 
 ### 1.1 Clone the Repository
 
 ```bash
-git clone https://github.com/21f1006877/Quiz-Master-App-V1.git
+git clone https://github.com/jishnukoliyadan/Quiz-Master-App-V1.git
 cd Quiz-Master-App-V1
 ```
 
