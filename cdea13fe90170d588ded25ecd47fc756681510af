@@ -1,0 +1,21 @@
+1. Score dashboard created for Admin and Users.
+    - Admin :
+        - Quiz Performance : Bar Chart : Shows Average quiz score on each chapter.
+        - User Engagement : Sunburst Chart : Gives quiz attempt count : Subjects→Chapters→User : All & Expired quizzes separately.
+    - Users :
+        - Quiz Performance : Line Chart : Shows Quiz scores on each attempt : Only for expired quizzes
+        - Quiz Participation : Sunburst Chart : Gives quiz attempt count : Subjects→Chapters : Based on all quizzes.
+2. Used Plotly for creating plots and used plotly's CDN to view on HTML page.
+    - The version of CDN have huge impact, for plotly=6.0.0, CDN version plotly-3.0.0 used.
+    - This the the latest verion on the official site at the time of the project.
+3. The core code for the plots are located at utils.py to ensure clean routes file.
+4. The old DB seed file removed and added a new one.
+    - Added more quiz attempt simulations with more data.
+    - More quiz attempts will generate much better plots.
+    - As part of the updation, the quizapp.db also modified.
+5. __init__.py
+    - Added the DB seeding here.
+    - If the DB not exists in the path,
+        - New DB will be created using seed_quiz.py data.
+        - Else it will continue to use the existing database.
+6. Some JS scripts added for plot showing, including GeeksforGeek, StackOverFlow and several other sites help in the process.
