@@ -1,0 +1,8 @@
+SQLite DataBase Created.
+
+1. New branch "DBsetup" created for the inplemantation of database schema creation.
+2. added ".env" to git tracker only because the information are not Sensitive one.
+3. Created a flask project template.
+4. models.py contain almost required DB table structure : May be need correction to the file as project progresses.
+5. Table "backref" are not added now, will add on go.
+6. To have a sample database created seed_quiz.py, which will create and add some random values to the DB.
