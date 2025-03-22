@@ -1,0 +1,20 @@
+1. Corrections on routes.py,
+    - The userid was previously hard-coded to 5 by mistake in the 'scores_dashboard' route, so corrected.
+    - To capter user inputes modification to 'quiz_attempt' function.
+    - Post attempting the quiz, user get redirection to Score dashboard not to User's.
+2. models.py, a new 'user_input' column has been added to the Scores table to capture user inputs, along with its utility functions
+3. seed_quiz.py modified to accomodate the change in the database structure.
+4. Created new function 'view_result' in routes.py
+    - To see the quiz results only after the quiz dead line.
+    - To see all the quiz attempts also, if there are many attempts.
+5. Used "if" conditions to avoid showing empty tables in,
+    - User dashboard : 'Expired Quizzes'
+    - Scores dashboard : 'Expired Attempted Quizzes' and 'Expired NON-Attempted Quizzes'
+6. Ensured the 'Ongoing Quizzes' table in User and Score dashboard will always have one row,
+    - "No ongoing quiz found, try again later!" to notify the user about quiz status.
+7. routes.py
+    - 'view_result', there could be errors, what I found, rectified. Still, there are possibilities.
+8. To improve there are many,
+    - Now, by changing the URL's a logged in user can get access to the result page of unattended quizzes also.
+    - A user can access the quiz attempt of other user by providing the 'scoreid' in the URL.
+    - Like this there may be many, if we are ensuring mroe security features, all these will be eliminated at that time.
