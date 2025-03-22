@@ -1,0 +1,10 @@
+1. README.md file modified
+    - 'checksum.py' was written incorrectly as 'check.py', which has been corrected.
+    - Corrected directory name as per required in the project doc file.
+    - Added a space to include the checksum of the 'quizapp' directory.
+    - Added To-Do steps,
+        - If checksum failed.
+        - If an envireonment 'quizapp' already exists.
+2. Changes in 'routes.py',
+    - While editing a subject name, if the new subject name existes in the Subject table, it throws an erorr.
+    - Added Subject existing check to tackle this on.
