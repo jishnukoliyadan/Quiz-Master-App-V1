@@ -1,0 +1,6 @@
+1. Timer and auto submission added to quiz attempting page.
+2. Post submission, results won't shown. Saw a message on Discourse that we can imagine the assignment portel while designing quiz page.
+    - The results are shown onlt post the dead line, so trying to implement the same.
+    - May be showing results may include on next page, ie on "Score" page.
+    - If not, may be on dashboard itself, on Expired Quizzes section.
+3. User dashboard might be a bit messy with information bombarding; 'll try to clean later only if needed.
