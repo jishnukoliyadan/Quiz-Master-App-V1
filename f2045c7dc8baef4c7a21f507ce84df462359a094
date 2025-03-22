@@ -1,0 +1,11 @@
+User and Admin login page and backend created
+
+1. New branch "login" created to execute the below points.
+2. routes.py will have all the routes for the pages and it will be the place for DB alteration code as well.
+3. A base html file named base_dashboard.html generated. New pages will inherit base structure from this one.
+4. Will be using Jinja2 for html template inheritance and geenration.
+5. User and Admin will ahve different base_dashboard.html files.
+6. Login and Registration data are processed in routes.py
+7. Admin can't register for his/her self, admin credentials are read from .env file and seed_quiz.py created the database, for now.
+8. Post successful varification of login credentials admin and user re-directs to their respctive dashboards.
+9. At present both dashboards are filled with dummy data only for to have expcted future structure.
