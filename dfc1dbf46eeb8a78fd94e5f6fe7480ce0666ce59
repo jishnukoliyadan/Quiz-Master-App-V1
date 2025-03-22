@@ -1,0 +1,4 @@
+New repository initialized by creating below files,
+1. .gitignore : To exclude unwanted files and paths : file will be creating refering to gitignore.io
+2. LICENCE : Since it's an open project using MIT Licence
+3. README.md : To create a detailed documentaion of the project from setting it up and runnign locally
