@@ -1,0 +1,16 @@
+1. Added session pop in all main pages ie, Once,
+    - User/Admin goes to home / register / user login / admin login page my mistakenly or intentionally,
+        - The session will get terminated
+        - The User/Admin have to login once agin for the access.
+2. Search option enabled for Admin and User.
+    - Searchable spaces for,
+        - Admin : User, Subject, Chapter, Quiz and Questions.
+        - Users : Subject, Chapter and Quiz.
+    - From search results
+        - Admin can go to respective view pages.
+        - User can get attempt quiz link if the keyword found in any of the quiz.
+    - For this,
+        - base html files of Admin and User modified.
+3. For Admin, User Dashboard created.
+    - This space allows admin to see users details and number of quiz attempts on made.
+    - Admin's base html file modified to incorporate this feature.
