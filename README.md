@@ -4,7 +4,9 @@
 
 This is a Flask-based Quiz Application that allows users to take quizzes, track their performance, and provides an admin panel for managing quizzes and analyzing user performance.
 
-![Quiz Master Screenshot](quizapp/static/images/admin_summary.png)
+**[Project Statement : Quiz-Master-App-V1](https://github.com/jishnukoliyadan/Quiz-Master-App-V1/blob/main/Problem-Statement.md)**
+
+![Quiz Master Screenshot](https://raw.githubusercontent.com/jishnukoliyadan/Quiz-Master-App-V1/refs/heads/main/quizapp/static/images/Quiz_Master.gif)
 
 ## Features
 
@@ -72,7 +74,7 @@ conda activate quizapp
 
 ### 3. File Integrity Verification
 
-Published Checksum : `f703c236c9bbfb36ec9c4baee00bab79`
+Published Checksum : `878e73196472537cd474193e9a7ec92f`
 
 Generate checksum to verify project integrity :
 
@@ -136,11 +138,14 @@ The database follows the relational model with multiple tables linked via foreig
 Quiz-Master-App-V1
 ├── .env
 ├── .gitignore
-├── LICENSE
-├── Project-Report-QuizMaster.pdf
-├── README.md
 ├── checksum.py
 ├── environment.yml
+├── LICENSE
+├── Milestone-Document.md
+├── Problem-Statement.md
+├── Project-Report-QuizMaster.docx
+├── Project-Report-QuizMaster.pdf
+├── README.md
 │
 ├── instance
 │   └── quizapp.db
