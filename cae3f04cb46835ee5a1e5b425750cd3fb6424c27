@@ -1,0 +1,6 @@
+1. Added new images in the `static` directory (inside quizapp).
+    - This caused a change in the checksum hash value of main project directory.
+2. Added Problem Statement and Milestone Document based on reference to the original one.
+3. Replaced Presentation Video with a new version.
+4. Added master copy of the project report.
+5. Renamed `Quiz_master wired frame.png` to remove whitespace from the filename.
